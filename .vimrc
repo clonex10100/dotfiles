@@ -34,7 +34,7 @@ colorscheme solarized
 let g:airline_solarized_bg='dark'
 let g:airline_powerline_fonts = 1
 "Italicize comments
-highlight Comment cterm=italic gui=italic
+"highlight Comment cterm=italic gui=italic
 
 
 " Indentation settings
@@ -68,7 +68,8 @@ nnoremap <leader>r :so $MYVIMRC <CR>
 "Cancel highlights from search
 nnoremap <leader>c :nohlsearch <CR>
 
-
+"Run learn command
+nnoremap <leader>l :wa <CR> :!learn <CR>
 inoremap <esc> <Nop>
 inoremap <C-h> <esc>
 
@@ -84,26 +85,25 @@ nnoremap <C-o> <C-W>l
 " k open
 " l end
 " j n
-nnoremap n h
-nnoremap N H
-nnoremap e gj
-nnoremap E J
-nnoremap i gk
-nnoremap I K
-nnoremap o l
-nnoremap O L
+noremap n h
+noremap N H
+noremap e gj
+noremap E J
+noremap i gk
+noremap I K
+noremap o l
+noremap O L
 
-nnoremap h i
-nnoremap H I
-nnoremap k o
-nnoremap K O
-nnoremap l e
-nnoremap L E
-nnoremap j n
-nnoremap J N
+noremap h i
+noremap H I
+noremap k o
+noremap K O
+noremap l e
+noremap L E
+noremap j n
+noremap J N
 "zero should take to first non whitespace character
 nnoremap 0 ^
-
 "Easily add blank lines
 noremap { O<ESC>
 noremap } o<ESC>
