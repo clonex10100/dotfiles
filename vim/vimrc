@@ -57,6 +57,12 @@ filetype plugin indent on
 " compatible.
 packadd matchit
 
+"auto open nerd tree if no file was specified
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+
+
+
 "Add custom keybinds
 
 "set leader key
@@ -66,6 +72,9 @@ nnoremap <leader>r :so $MYVIMRC <CR>
 
 "Cancel highlights from search
 nnoremap <leader>c :nohlsearch <CR>
+
+"Toggle nerd tree
+nnoremap <leader>n :NERDTreeToggle<CR>
 
 "Run learn command
 nnoremap <leader>l :wa <CR> :!learn <CR>

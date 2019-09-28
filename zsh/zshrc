@@ -1,0 +1,46 @@
+#load agnoster prompt
+fpath=("$HOME/.zprompts" "$fpath[@]")
+autoload -Uz promptinit
+promptinit
+prompt agnoster
+
+#source keybinds
+. ~/.zkeybinds
+
+export EDITOR=vim
+export XDG_CONFIG_HOME=~/.config
+
+#Load aliases
+. ~/dotfiles/aliases
+#Reload this file
+alias r=". ~/.zshrc"
+
+#Add qmk tools to path
+export PATH="$PATH:$HOME/qmk_firmware/bin"
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
+#Loads rvm as a function
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
+
+#Loads ssh-agent
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+    ssh-agent > "$XDG_RUNTIME_DIR/ssh-agent.env"
+fi
+if [[ ! "$SSH_AUTH_SOCK" ]]; then
+    eval "$(<"$XDG_RUNTIME_DIR/ssh-agent.env")" > /dev/null
+fi
+
+# Lines configured by zsh-newuser-install
+HISTFILE=~/.histfile
+HISTSIZE=1000
+SAVEHIST=1000
+setopt appendhistory autocd extendedglob
+unsetopt beep
+# End of lines configured by zsh-newuser-install
+# The following lines were added by compinstall
+zstyle :compinstall filename '/home/clone/.zshrc'
+
+autoload -Uz compinit
+compinit
+# End of lines added by compinstall

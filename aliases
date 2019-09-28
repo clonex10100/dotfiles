@@ -1,31 +1,3 @@
-#
-# ~/.bashrc
-#
-
-# If not running interactively, don't do anything
-[[ $- != *i* ]] && return
-
-#Enable bash-completion
-[[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && \
-        . /usr/share/bash-completion/bash_completion
-
-
-#DEFINE BASH COLORS
-BLACK="\[$(tput setaf 0)\]"
-RED="\[$(tput setaf 1)\]"
-GREEN="\[$(tput setaf 2)\]"
-YELLOW="\[$(tput setaf 3)\]"
-BLUE="\[$(tput setaf 4)\]"
-MAGENTA="\[$(tput setaf 5)\]"
-CYAN="\[$(tput setaf 6)\]"
-WHITE="\[$(tput setaf 7)\]"
-RESET="\[$(tput sgr0)\]"
-
-#Set prompt
-export PS1="${BLUE}\u@\h${RESET} ${GREEN}\w${RESET}${RED}\$${RESET} "
-export EDITOR=vim
-export XDG_CONFIG_HOME=~/.config
-
 #Basic aliases
 alias q="exit"
 alias c="clear"
@@ -48,18 +20,13 @@ pacs (){
 alias v="vim"
 alias e="sudo -e"
 
-#Reload this file
-alias r=". ~/.bashrc"
 
 #Systemctl aliases
 alias ena="sudo systemctl enable"
 alias dis="sudo systemctl disable"
 alias sta="systemctl status"
 
-#Commonly edited config files
-alias be="v ~/.bashrc"
-alias ve="v ~/.vimrc"
-
+#Commonly edited config files alias be="v ~/.bashrc" alias ve="v ~/.vimrc" 
 #Random
 alias scr="scrot ~/Pictures/screenshots/Y%-m%-d%-scrot.png"
 alias exa="sudo chmod +x"
@@ -117,18 +84,3 @@ upScr(){
 
 
 alias lab="cd ~/labs/object_oriented"
-
-#Add qmk tools to path
-export PATH="$PATH:$HOME/qmk_firmware/bin"
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
-#Loads rvm as a function
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
-
-#Loads ssh-agent
-if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-    ssh-agent > "$XDG_RUNTIME_DIR/ssh-agent.env"
-fi
-if [[ ! "$SSH_AUTH_SOCK" ]]; then
-    eval "$(<"$XDG_RUNTIME_DIR/ssh-agent.env")" > /dev/null
-fi
