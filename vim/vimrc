@@ -6,6 +6,7 @@ set backspace=indent,eol,start
 
 "Basic settings
 set nobackup		" do not keep a backup file, use versions instead
+set nowritebackup
 set ruler		" show the cursor position all the time
 set showcmd		" display incomplete commands
 set hlsearch        "highlight search results when using / or ?
@@ -14,10 +15,12 @@ set number      "Line numbers should always be on.
 set mouse=a     "Enable mouse
 set showmatch       "Highlight matching bracket
 set wildmenu        "Show possble outcompletes above commandbar
-
+set hidden
 set lazyredraw      "Avoid unessary frames
 set ignorecase
 set smartcase
+set splitright
+set splitbelow
 
 "Visual settings
 
@@ -32,9 +35,6 @@ colorscheme solarized
 
 let g:airline_solarized_bg='dark'
 let g:airline_powerline_fonts = 1
-"Italicize comments
-"highlight Comment cterm=italic gui=italic
-
 
 " Indentation settings
 
@@ -61,6 +61,9 @@ packadd matchit
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
+"Reduce gitgutter update time
+set updatetime=100
+
 
 
 "Add custom keybinds
@@ -78,6 +81,11 @@ nnoremap <leader>n :NERDTreeToggle<CR>
 
 "Run learn command
 nnoremap <leader>l :wa <CR> :!learn <CR>
+
+"Open Split windows
+nnoremap <leader>v :vsp<CR>
+nnoremap <leader>h :sp<CR>
+nnoremap <C-k> <C-o>
 inoremap <esc> <Nop>
 inoremap <C-h> <esc>
 
@@ -86,6 +94,10 @@ nnoremap <C-n> <C-W>h
 nnoremap <C-e> <C-W>j
 nnoremap <C-i> <C-W>k
 nnoremap <C-o> <C-W>l
+
+"crtl p
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP'
 
 " Colemak binds
 " NEIO to move,
@@ -115,3 +127,155 @@ nnoremap 0 ^
 "Easily add blank lines
 noremap { O<ESC>
 noremap } o<ESC>
+
+"No line numbers in :te
+au TermOpen * setlocal nonumber norelativenumber
+"Auto enter term mode on open
+autocmd TermOpen * startinsert
+"Auto enter term mode on switch
+autocmd BufWinEnter,WinEnter term://* startinsert
+"Esc to leave :term
+tnoremap <ESC> <C-\><C-n>:q<CR>
+"ctrl h to enter normal
+tnoremap <C-h> <C-\><C-n>
+"Make tab work normally
+"Switch windows
+tnoremap <C-n> <C-\><C-n><C-W>h
+tnoremap <C-e> <C-\><C-n><C-W>j
+tnoremap <C-i> <C-\><C-n><C-W>k
+tnoremap <C-o> <C-\><C-n><C-W>l
+
+"NerdTree Mappings
+let g:NERDTreeMapActivateNode = "k"
+let g:NERDTreePreview = "gk"
+let g:NERDTreeMapOpenSplit = "h"
+let g:NERDTreeMapPreviewSplit = "gh"
+let g:NERDTreeMapOpenRecursively = "K"
+let g:NERDTreeMapOpenExpl = "l"
+let g:NERDTreeMapJumpLastChild = "E"
+let g:NERDTreeMapJumpFirstChild = "I"
+let g:NERDTreeMapJumpNextSibling = "<C-E>"
+let g:NERDTreeMapJumpNextSibling = "<C-I>"
+let g:NERDTreeMapToggleHidden = "H"
+
+
+
+"Example coc config
+" don't give |ins-completion-menu| messages.
+set shortmess+=c
+
+" always show signcolumns
+set signcolumn=yes
+
+" Use tab for trigger completion with characters ahead and navigate.
+" Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Use <c-space> to trigger completion.
+inoremap <silent><expr> <c-space> coc#refresh()
+
+" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current position.
+" Coc only does snippet and additional edit on confirm.
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+" Or use `complete_info` if your vim support it, like:
+" inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+
+" Use `[g` and `]g` to navigate diagnostics
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+" Remap keys for gotos
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Use leader d to show documentation in preview window
+nnoremap <silent> <leader>d :call <SID>show_documentation()<CR>
+
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
+
+" Highlight symbol under cursor on CursorHold
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Remap for rename current word
+nmap <leader>rn <Plug>(coc-rename)
+
+" Remap for format selected region
+xmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
+
+augroup mygroup
+  autocmd!
+  " Setup formatexpr specified filetype(s).
+  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+  " Update signature help on jump placeholder
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+augroup end
+
+" Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
+xmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>a  <Plug>(coc-codeaction-selected)
+
+" Remap for do codeAction of current line
+nmap <leader>ac  <Plug>(coc-codeaction)
+" Fix autofix problem of current line
+nmap <leader>qf  <Plug>(coc-fix-current)
+
+" Create mappings for function text object, requires document symbols feature of languageserver.
+xmap hf <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap hf <Plug>(coc-funcobj-i)
+omap af <Plug>(coc-funcobj-a)
+
+" Use <C-d> for select selections ranges, needs server support, like: coc-tsserver, coc-python
+nmap <silent> <C-d> <Plug>(coc-range-select)
+xmap <silent> <C-d> <Plug>(coc-range-select)
+
+" Use `:Format` to format current buffer
+command! -nargs=0 Format :call CocAction('format')
+
+" Use `:Fold` to fold current buffer
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+" use `:OR` for organize import of current buffer
+command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+
+" Add status line support, for integration with other plugin, checkout `:h coc-status`
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+
+" Using CocList
+" Show all diagnostics
+nnoremap <silent> <space>a  :<C-u>CocList diagnostics<cr>
+" Manage extensions
+nnoremap <silent> <space>e  :<C-u>CocList extensions<cr>
+" Show commands
+nnoremap <silent> <space>c  :<C-u>CocList commands<cr>
+" Find symbol of current document
+nnoremap <silent> <space>o  :<C-u>CocList outline<cr>
+" Search workspace symbols
+nnoremap <silent> <space>s  :<C-u>CocList -I symbols<cr>
+" Do default action for next item.
+nnoremap <silent> <space>j  :<C-u>CocNext<CR>
+" Do default action for previous item.
+nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
+" Resume latest coc list
+nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
+
+"Fix terminal tab
+tunmap <Tab>

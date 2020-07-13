@@ -1,5 +1,6 @@
 #load agnoster prompt
 fpath=("$HOME/.zprompts" "$fpath[@]")
+export PATH="$PATH:$HOME/bin"
 autoload -Uz promptinit
 promptinit
 prompt agnoster
@@ -7,7 +8,7 @@ prompt agnoster
 #source keybinds
 . ~/.zkeybinds
 
-export EDITOR=vim
+export EDITOR=nvim
 export XDG_CONFIG_HOME=~/.config
 
 #Load aliases
@@ -20,22 +21,23 @@ export PATH="$PATH:$HOME/qmk_firmware/bin"
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"
+
 #Loads rvm as a function
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 
 #Loads ssh-agent
-if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-    ssh-agent > "$XDG_RUNTIME_DIR/ssh-agent.env"
-fi
-if [[ ! "$SSH_AUTH_SOCK" ]]; then
-    eval "$(<"$XDG_RUNTIME_DIR/ssh-agent.env")" > /dev/null
-fi
+#if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+#    ssh-agent > "$XDG_RUNTIME_DIR/ssh-agent.env"
+#fi
+#if [[ ! "$SSH_AUTH_SOCK" ]]; then
+#    eval "$(<"$XDG_RUNTIME_DIR/ssh-agent.env")" > /dev/null
+#fi
 
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
 HISTSIZE=1000
 SAVEHIST=1000
-setopt appendhistory autocd extendedglob
+setopt appendhistory autocd extendedglob correct
 unsetopt beep
 # End of lines configured by zsh-newuser-install
 # The following lines were added by compinstall

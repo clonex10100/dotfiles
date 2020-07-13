@@ -16,10 +16,10 @@
 ;
 ;==========================================================
 [colors]
-background = #002b36
-background-alt = #073642
+background = #c8002b36
+background-alt = #c8073642
 
-foreground = #839496
+foreground = #e6839496
 
 emph = #93a1a1
 
@@ -49,7 +49,7 @@ line-size = 3
 
 padding-left = 0
 padding-right = 1
-
+$
 module-margin-left = 0
 module-margin-right = 1
 
@@ -58,8 +58,8 @@ font-1 = unifont:fontformat=truetype:size=8:antialias=false;0
 font-2 = siji:pixelsize=10;1
 
 modules-left = i3
-modules-center = mpdRestart mpdPrev mpdBackward mpd mpdForward mpdNext mpdToggle
-modules-right = reddit updates oxoscr bluetooth pulseaudio gpuTemp cpuTemp cpu memory filesystem date
+modules-center = mpdRestart mpdPrev mpdBackward mpdClear mpd mpdVol mpdForward mpdNext mpdToggle
+modules-right = updates oxoscr bluetooth pulseaudio gpuTemp cpuTemp cpu memory filesystem filesystemD filesystemD2 date
 
 #tray-position = right
 #tray-padding = 2
@@ -77,10 +77,29 @@ interval = 25
 
 mount-0 = /
 
-label-mounted = %mountpoint%:%percentage_used%%
+label-mounted = %mountpoint%:%free%
 label-unmounted = %mountpoint% not mounted
 label-mounted-underline = ${colors.magenta}
 
+[module/filesystemD]
+type = internal/fs
+interval = 25
+
+mount-0 = /data
+
+label-mounted = %mountpoint%:%free%
+label-unmounted = %mountpoint% not mounted
+label-mounted-underline = ${colors.magenta}
+
+[module/filesystemD2]
+type = internal/fs
+interval = 25
+
+mount-0 = /data2
+
+label-mounted = %mountpoint%:%free%
+label-unmounted = %mountpoint% not mounted
+label-mounted-underline = ${colors.magenta}
 [module/i3]
 type = internal/i3
 format = <label-state> <label-mode>
@@ -166,11 +185,12 @@ label = %date% %time%
 type = internal/pulseaudio
 
 format-volume = <label-volume>
-label-volume = PA:on
+label-volume = PA:%percentage%%
 label-volume-underline = ${colors.cyan}
 
 label-muted =  PA:off
 label-muted-underline = ${colors.red}
+click-right = exec pavucontrol &
 
 [module/mpd]
 type = internal/mpd
@@ -186,6 +206,13 @@ bar-progress-width = 45
 bar-progress-indicator = |
 bar-progress-fill = %{F#cb4b16}-%{F-}
 bar-progress-empty = -
+
+[module/mpdClear]
+type = custom/text
+content = [C]
+content-underline = ${colors.cyan}
+
+click-left = mpc clear
 
 [module/mpdForward]
 type = custom/text
@@ -240,6 +267,15 @@ click-left = kill -USR1 %pid%
 
 format-underline = ${colors.blue}
 
+[module/mpdVol]
+type = custom/script
+exec = mpc status | grep 'vol' | grep -Po '(?<=:|| )[0-9]*%'
+interval = .1
+
+scroll-up = mpc volume +5
+scroll-down = mpc volume -5
+
+format-underline = ${colors.cyan}
 [module/hackspeed]
 type = custom/script
 exec = ~/.config/polybar/scripts/info-hackspeed.sh
@@ -258,6 +294,13 @@ format-underline = ${colors.red}
 [module/updates]
 type = custom/script
 exec = ~/.config/polybar/scripts/updates-arch.sh
+interval = 600
+
+format-underline = ${colors.red}
+
+[module/anam]
+type = custom/script
+exec = ~/.config/polybar/scripts/anam.rb
 interval = 600
 
 format-underline = ${colors.red}

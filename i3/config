@@ -33,7 +33,7 @@ bindsym $mod+Return exec kitty
 bindsym $mod+Shift+q kill
 
 # start dmenu (a program launcher)
-bindsym $mod+s exec dmenu_run
+bindsym $mod+s exec "rofi -combi-modi window,run -show combi -modi combi"
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
@@ -116,7 +116,7 @@ bindsym $mod+Shift+0 move container to workspace 10
 # reload the configuration file
 bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
-bindsym $mod+Shift+p restart
+bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+f exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
@@ -146,36 +146,47 @@ mode "resize" {
 
 bindsym $mod+p mode "resize"
 
-assign [class="^discord$"] 3
-assign [class="^Thunderbird$"] 3
-assign [class="^Slack$"] 3
-assign [class="^Steam$"] 4
+#exec --no-startup-id "i3-msg 'workspace 3; append_layout /home/clone/.config/i3/workspace3.json'"
+assign [class="^discord$"] 4
+assign [class="^Thunderbird$"] 4
+assign [class="^Slack$"] 4
+assign [class="^keepassxc$"] 4
+assign [class="^deluge$"] 4
+assign [class="^Steam$"] 5
+for_window [class="Tor Browser"] floating enable
 
-exec compton 
-for_window[class=".*"] border pixel 0
+exec picom
+for_window[class=".*"] border pixel 1
 gaps inner 10
 gaps top 37
 exec_always --no-startup-id polyLaunch
 
 
 # class                 border  backgr. text    indicator child_border
-client.focused           #002b36 #002b36 #cb4b16 #dc322f   #000000
-client.focused_inactive  #002b36 #002b36 #839496 #dc322f   #000000
-client.unfocused         #073642 #073642 #839496 #dc322f   #000000
-client.urgent            #002b36 #002b36 #839496 #dc322f   #000000
+client.focused           #002b36 #002b36 #268bd2 #dc322f   #268bd2
+client.focused_inactive  #002b36 #002b36 #839496 #dc322f   #002b36
+client.unfocused         #073642 #073642 #839496 #dc322f   #002b36
+client.urgent            #002b36 #002b36 #cb4b16 #dc322f   #cb4b16
 client.placeholder       #073642 #073642 #839496 #dc322f   #000000
 
 client.background       #FFFFFF
 
 
-#exec feh --bg-scale /usr/share/pixmaps/solarized_arch_background.png
-exec hsetroot -solid "#93a1a1"
+exec feh --bg-scale ~/Pictures/wallpapers/wallpaper
 
 #mpc playback controls
 bindsym $mod+x exec mpc toggle
 bindsym $mod+c exec screenshot
 
+bindsym $mod+d exec "terms"
+bindsym $mod+l exec "torrent"
+bindsym $mod+m exec "music"
+
+bindsym $mod+Shift+p exec ~/.config/polybar/launch.sh
+
 exec discord
 exec slack
 exec thunderbird
+exec keepassxc
 exec steam
+exec music

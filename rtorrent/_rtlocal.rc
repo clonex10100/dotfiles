@@ -1,0 +1,36 @@
+throttle.global_up.max_rate.set_kb = 0
+throttle.global_down.max_rate.set_kb = 0
+network.port_range.set = 65253-65253
+#schedule2 = watch_directory_ggn,5,5,"load.start=~/watch/ggn/*.torrent,d.directory.set=/data/ggn/"
+
+#music
+schedule2 = watch_directory_music_ops,5,5,"load.start=~/watch/music/ops/*.torrent,d.directory.set=/data/Music/"
+schedule2 = watch_directory_music_red,5,5,"load.start=~/watch/music/red/*.torrent,d.directory.set=/data/Music/"
+
+#Music Crossseeds
+schedule2 = watch_directory_cross_ops,5,5,"load.start=~/watch/cross/ops/*.torrent,d.directory.set=/data/cross/ops"
+schedule2 = watch_directory_cross_red,5,5,"load.start=~/watch/cross/red/*.torrent,d.directory.set=/data/cross/red"
+
+#Music transcoding
+#schedule2 = watch_directory_trans_ops,5,5,"load.start=~/watch/trans/ops/*.torrent,d.directory.set=/home/clone/trans/"
+#schedule2 = watch_directory_trans_red,5,5,"load.start=~/watch/trans/red/*.torrent,d.directory.set=/home/clone/trans/"
+
+#books
+schedule2 = watch_directory_books,5,5,"load.start=~/watch/books/*.torrent,d.directory.set=/data/books/"
+
+#anime
+#schedule2 = watch_directory_anime,5,5,"load.start=~/watch/anime/*.torrent,d.directory.set=/data2/anime"
+
+#porn
+#schedule2 = watch_directory_porn,5,5,"load.start=~/watch/porn/*.torrent,d.directory.set=/data/norp"
+
+#Movies
+#schedule2 = watch_directory_movies,5,5,"load.start=~/watch/movies/*.torrent,d.directory.set=/data2/Movies"
+
+#Tv
+#schedule2 = watch_directory_tv,5,5,"load.start=~/watch/tv/*.torrent,d.directory.set=/data2/TV"
+
+
+
+schedule2 = tied_directory, 10, 10, start_tied=
+schedule2 = untied_directory, 10, 10, stop_untied=

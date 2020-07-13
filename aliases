@@ -1,11 +1,23 @@
 #Basic aliases
 alias q="exit"
+alias rtorrent="~/rtorrent/start"
+alias :q="exit"
 alias c="clear"
 alias ls='ls --color=auto'
 alias lo="learn open"
 alias le="learn"
 alias lsu="learn submit"
 alias lff="learn --f-f"
+alias mpvss="mpv --deband=no --screenshot-format=png"
+alias fplank="sudo make planck/rev5:clonex10100:dfu"
+alias stmrun="~/Desktop/steam-runtime/run.sh"
+alias interfaces="~/gamesFucking/goldlinux/tools/find_interfaces.sh ./libsteam_api.so > steam_interfaces.txt"
+alias vnc="x11vnc -display :0 -usepw"
+alias icat="kitty +kitten icat"
+alias spectral="sox -n spectrogram"
+alias giga="mv ~/steamapps/devildaggers/dd/survival ~/steamapps/devildaggers/dd/tmp && mv ~/steamapps/devildaggers/dd/giga ~/steamapps/devildaggers/dd/survival && mv ~/steamapps/devildaggers/dd/tmp ~/steamapps/devildaggers/dd/giga"
+alias levi="mv ~/steamapps/devildaggers/dd/survival ~/steamapps/devildaggers/dd/tmp && mv ~/steamapps/devildaggers/dd/levi ~/steamapps/devildaggers/dd/survival && mv ~/steamapps/devildaggers/dd/tmp ~/steamapps/devildaggers/dd/levi"
+alias np="npm install && npm start"
 
 #Alias for pacman installations/removal
 alias pac="sudo pacman -Syu"
@@ -15,10 +27,17 @@ pacs (){
     pacman -Ss $1 > /tmp/pacs
     vim /tmp/pacs
 }
+#Use Neovim
+alias vim="nvim"
 
 #Editing aliases
 alias v="vim"
 alias e="sudo -e"
+
+#Vpn aliases
+alias vf="sudo protonvpn-cli -f"
+alias vp="sudo protonvpn-cli -p2p"
+alias vd="sudo protonvpn-cli -d"
 
 
 #Systemctl aliases
@@ -26,7 +45,7 @@ alias ena="sudo systemctl enable"
 alias dis="sudo systemctl disable"
 alias sta="systemctl status"
 
-#Commonly edited config files alias be="v ~/.bashrc" alias ve="v ~/.vimrc" 
+#Commonly edited config files alias be="v ~/.bashrc" alias ve="v ~/.vimrc"
 #Random
 alias scr="scrot ~/Pictures/screenshots/Y%-m%-d%-scrot.png"
 alias exa="sudo chmod +x"
@@ -34,7 +53,7 @@ alias exa="sudo chmod +x"
 #Quick connections
 alias m="mutt -f imaps://noah@nevans.me@mail.nevans.me"
 alias mssh="sudo ssh -i /home/clone/.oldSSH/amazon/id_rsa admin@100.25.250.119"
-alias rssh="ssh ubuntu@192.168.0.12"
+alias rssh="ssh ubuntu@192.168.1.12"
 
 #Project aliases
 alias pmp="python3 ~/projects/mpdClient/src/mp.py"
@@ -82,5 +101,46 @@ upScr(){
     oxo /tmp/scrot
 }
 
+crk(){
+    mv libsteam_api.so libsteam_api.old
+    cp /home/clone/gamesFucking/goldlinux/x86_64/libsteam_api.so ./
+}
 
-alias lab="cd ~/labs/object_oriented"
+crk86(){
+    mv libsteam_api.so libsteam_api.old
+    cp /home/clone/gamesFucking/goldlinux/x86/libsteam_api.so ./
+}
+
+wallpaper(){
+    rm ~/Pictures/wallpapers/wallpaper
+    P="/home/clone/Pictures/wallpapers/$(basename $1)"
+    if [[ ! -f $P ]]; then
+        echo $P
+        cp $1 ~/Pictures/wallpapers/
+    fi
+
+    ln -s $P ~/Pictures/wallpapers/wallpaper
+    feh --bg-scale ~/Pictures/wallpapers/wallpaper
+}
+
+mp(){
+    mpv $1 &> /dev/null &
+}
+
+aur(){
+    cd ~/aurBuilds
+    git=$(xclip -selection c -o)
+    dir=$(basename $git .git)
+    echo $dir
+    if [[ -d "${dir}" ]]; then
+        rm -rf "${dir}"
+    fi
+    git clone $git
+    cd "${dir}"
+    makepkg -si
+}
+
+
+alias lab="cd $lab"
+alias osusong="mv ~/Downloads/*.osz ~/.local/share/wineprefixes/osu/drive_c/users/clone/Local\ Settings/Application\ Data/osu\!/Songs/"
+
