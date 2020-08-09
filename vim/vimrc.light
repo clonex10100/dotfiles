@@ -1,0 +1,134 @@
+set nocompatible
+
+" allow backspacing over everything in insert mode
+set backspace=indent,eol,start
+
+"Basic settings
+set nobackup		" do not keep a backup file, use versions instead
+set nowritebackup
+set ruler		" show the cursor position all the time
+set showcmd		" display incomplete commands
+set hlsearch        "highlight search results when using / or ?
+set incsearch		" do incremental searching
+set number      "Line numbers should always be on.
+set mouse=a     "Enable mouse
+set showmatch       "Highlight matching bracket
+set wildmenu        "Show possble outcompletes above commandbar
+set hidden
+set lazyredraw      "Avoid unessary frames
+set ignorecase
+set smartcase
+set splitright
+set splitbelow
+
+"Visual settings
+
+set go=aeirL@
+
+syntax on "Enable syntax highlighting
+
+"Color scheme
+"let g:solarized_termcolors=16
+"set background=dark
+"colorscheme solarized
+
+" Indentation settings
+
+" always set autoindenting on
+set autoindent
+set smartindent
+
+"Interpret tabs as four spaces
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set expandtab
+
+"Set filetype specific settings and indentation
+filetype plugin indent on
+
+" Add optional packages.
+" The matchit plugin makes the % command work better, but it is not backwards
+
+" compatible.
+packadd matchit
+
+
+
+"Add custom keybinds
+
+"set leader key
+let mapleader = ","
+"map to quickly reload this file
+nnoremap <leader>r :so $MYVIMRC <CR>
+
+"Cancel highlights from search
+nnoremap <leader>c :nohlsearch <CR>
+
+"Run learn command
+nnoremap <leader>l :wa <CR> :!learn <CR>
+
+nnoremap <leader>y :%y+ <CR>
+"Open Split windows
+nnoremap <leader>v :vsp<CR>
+nnoremap <leader>h :sp<CR>
+nnoremap <C-k> <C-o>
+inoremap <esc> <Nop>
+inoremap <C-h> <esc>
+
+" Smart way to move between windows
+nnoremap <C-n> <C-W>h
+nnoremap <C-e> <C-W>j
+nnoremap <C-i> <C-W>k
+nnoremap <C-o> <C-W>l
+
+
+" Colemak binds
+" NEIO to move,
+" h insert
+" k open
+" l end
+" j next
+noremap n h
+noremap N H
+noremap */}e gj
+noremap E J
+noremap i gk
+noremap I K
+noremap o l
+noremap O L
+
+noremap h i
+noremap H I
+noremap k o
+noremap K O
+noremap l e
+noremap L E
+noremap j n
+noremap J N
+"zero should take to first non whitespace character
+nnoremap 0 ^
+"Easily add blank lines
+noremap { O<ESC>
+noremap } o<ESC>
+
+"No line numbers in :te
+au TermOpen * setlocal nonumber norelativenumber
+"Auto enter term mode on open
+autocmd TermOpen * startinsert
+"Auto enter term mode on switch
+autocmd BufWinEnter,WinEnter term://* startinsert
+"Esc to leave :term
+tnoremap <ESC> <C-\><C-n>:q<CR>
+"ctrl h to enter normal
+tnoremap <C-h> <C-\><C-n>
+"Make tab work normally
+"Switch windows
+tnoremap <C-n> <C-\><C-n><C-W>h
+tnoremap <C-e> <C-\><C-n><C-W>j
+tnoremap <C-i> <C-\><C-n><C-W>k
+tnoremap <C-o> <C-\><C-n><C-W>l
+
+
+
+tunmap <Tab>
