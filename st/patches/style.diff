@@ -1,6 +1,7 @@
-diff -up st-0.8.4/config.def.h st-0.8.4sol/config.def.h
---- st-0.8.4/config.def.h	2020-09-16 12:50:10.810119366 -0400
-+++ st-0.8.4sol/config.def.h	2020-09-16 12:50:24.393452717 -0400
+Only in solCur: .ccls-cache
+diff -up st-0.8.4/config.def.h solCur/config.def.h
+--- st-0.8.4/config.def.h	2020-09-16 13:25:53.160122159 -0400
++++ solCur/config.def.h	2020-09-16 13:26:59.410122245 -0400
 @@ -5,7 +5,7 @@
   *
   * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
@@ -75,7 +76,12 @@ diff -up st-0.8.4/config.def.h st-0.8.4sol/config.def.h
  static unsigned int defaultcs = 256;
  static unsigned int defaultrcs = 257;
  
-Only in st-0.8.4: hb.o
-Only in st-0.8.4: st
-Only in st-0.8.4: st.o
-Only in st-0.8.4: x.o
+@@ -155,7 +154,7 @@ static unsigned int rows = 24;
+ /*
+  * Default colour and shape of the mouse cursor
+  */
+-static unsigned int mouseshape = XC_xterm;
++static unsigned int mouseshape = XC_left_ptr;
+ static unsigned int mousefg = 7;
+ static unsigned int mousebg = 0;
+ 
