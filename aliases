@@ -3,6 +3,7 @@ alias q="exit"
 alias rtorrent="~/rtorrent/start"
 alias :q="exit"
 alias c="clear"
+alias cn="cd && clear && neofetch && tmux list-sessions"
 alias ls='ls --color=auto'
 alias lo="learn open"
 alias le="learn"
@@ -18,14 +19,29 @@ alias spectral="sox -n spectrogram"
 alias giga="mv ~/steamapps/devildaggers/dd/survival ~/steamapps/devildaggers/dd/tmp && mv ~/steamapps/devildaggers/dd/giga ~/steamapps/devildaggers/dd/survival && mv ~/steamapps/devildaggers/dd/tmp ~/steamapps/devildaggers/dd/giga"
 alias levi="mv ~/steamapps/devildaggers/dd/survival ~/steamapps/devildaggers/dd/tmp && mv ~/steamapps/devildaggers/dd/levi ~/steamapps/devildaggers/dd/survival && mv ~/steamapps/devildaggers/dd/tmp ~/steamapps/devildaggers/dd/levi"
 alias np="npm install && npm start"
+alias clip="xclip -selection clipboard"
+
+
+#Torrents
+alias rtimportd="rtcontrol --from-view complete 'realpath=*/anime/*,*/TV/*' 'tagged=!imported' -q -o 'cp -rl \"\$(path)s\" /data2/jellyfin/imports/ && chmod 777 -R \"/data2/jellyfin/imports/\$(path.pathbase)s\" && sonarrImport \"\$(path.pathbase)s\"'"
+#alias rtimportd="rtcontrol --from-view complete 'realpath=*/anime/*,*/TV/*' 'tagged=!imported' -q -o 'cp -rl \"\$(path)s\" /data2/jellyfin/imports/ && chmod 777 -R \"/data2/jellyfin/imports/\$(path.pathbase)s\" '"
+#alias rtimport="rtimportd --tag '+imported' | bash"
+alias rttagc="rtcontrol --from-view tagged 'name=*' --tag '-imported'"
+
 
 #Alias for pacman installations/removal
 alias pac="sudo pacman -Syu"
 alias pacr="sudo pacman -Rs"
+alias paci="sudo pacman -Qi"
 #Alias for searching in pacman and opening the file in vim
 pacs (){
     pacman -Ss $1 > /tmp/pacs
-    vim /tmp/pacs
+    nvim /tmp/pacs
+}
+
+#Search a project folder for keyword
+s (){
+    grep -Hrn --exclude-dir='.*' "$1" *  
 }
 #Use Neovim
 alias vim="nvim"
@@ -54,6 +70,7 @@ alias exa="sudo chmod +x"
 alias m="mutt -f imaps://noah@nevans.me@mail.nevans.me"
 alias mssh="sudo ssh -i /home/clone/.oldSSH/amazon/id_rsa admin@100.25.250.119"
 alias rssh="ssh ubuntu@192.168.1.12"
+alias dssh="ssh debian@192.168.1.6"
 
 #Project aliases
 alias pmp="python3 ~/projects/mpdClient/src/mp.py"
@@ -140,7 +157,35 @@ aur(){
     makepkg -si
 }
 
+mp3Add(){
+    ls | grep $1 >> /data/phonemp3list
+}
+
+mp3Addc() {
+    echo $(basename $PWD) >> /data/phonemp3list
+}
+
 
 alias lab="cd $lab"
 alias osusong="mv ~/Downloads/*.osz ~/.local/share/wineprefixes/osu/drive_c/users/clone/Local\ Settings/Application\ Data/osu\!/Songs/"
 
+#Rtorrent stuff
+alias linuxGamesList="rtcontrol --from-view complete 'alias=ggn' 'metafile=*Linux*' -qo '\$(metafile.pathbase)s'"
+alias col="setxkbmap us colemak"
+
+alias eth="ethminer -P stratum1+ssl://0xD208D3BB8985855F577314bAfAAcCd987c264bFb.clonerig@us1.ethermine.org:5555"
+
+
+setFanSpeed() {
+    echo $1
+    echo "\n"
+    #a=(($1 * 255))
+    #echo $(printf "%.0f" a)
+}
+#alias ethWithFan() {
+    #sudo -i
+    #echo "1" > /sys/class/drm/card0/device/hwmon/hwmon2/pwm1_enable
+    #echo "160" > /sys/class/drm/card0/device/hwmon/hwmon2/pwm1
+    #exit
+    #eth && sudo -i &&
+#}

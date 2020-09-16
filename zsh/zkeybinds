@@ -1,6 +1,7 @@
 bindkey -v
 bindkey -r "^["
-bindkey "^H" vi-cmd-mode
+bindkey -r "^h"
+bindkey "^h" vi-cmd-mode
 
 #colemak vim binds
 bindkey -M vicmd "n" vi-backward-char

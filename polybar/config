@@ -59,7 +59,7 @@ font-2 = siji:pixelsize=10;1
 
 modules-left = i3
 modules-center = mpdRestart mpdPrev mpdBackward mpdClear mpd mpdVol mpdForward mpdNext mpdToggle
-modules-right = updates oxoscr bluetooth pulseaudio gpuTemp cpuTemp cpu memory filesystem filesystemD filesystemD2 date
+modules-right = ether updates oxoscr bluetooth pulseaudio gpuTemp cpuTemp cpu memory filesystem filesystemD filesystemD2 date
 
 #tray-position = right
 #tray-padding = 2
@@ -79,7 +79,7 @@ mount-0 = /
 
 label-mounted = %mountpoint%:%free%
 label-unmounted = %mountpoint% not mounted
-label-mounted-underline = ${colors.magenta}
+label-mounted-underline = ${colors.green}
 
 [module/filesystemD]
 type = internal/fs
@@ -87,9 +87,9 @@ interval = 25
 
 mount-0 = /data
 
-label-mounted = %mountpoint%:%free%
+label-mounted = /d:%free%
 label-unmounted = %mountpoint% not mounted
-label-mounted-underline = ${colors.magenta}
+label-mounted-underline = ${colors.cyan}
 
 [module/filesystemD2]
 type = internal/fs
@@ -97,7 +97,7 @@ interval = 25
 
 mount-0 = /data2
 
-label-mounted = %mountpoint%:%free%
+label-mounted = /d2:%free%
 label-unmounted = %mountpoint% not mounted
 label-mounted-underline = ${colors.magenta}
 [module/i3]
@@ -304,6 +304,12 @@ exec = ~/.config/polybar/scripts/anam.rb
 interval = 600
 
 format-underline = ${colors.red}
+
+[module/ether]
+type = custom/script
+exec = ~/.config/polybar/scripts/eth.rb
+interval = 10
+format-underline = ${colors.violet}
 
 [module/mail]
 type = custom/script

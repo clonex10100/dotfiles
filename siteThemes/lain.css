@@ -1,0 +1,393 @@
+/*
+ * Solarized.css by clone
+ * Modified dark.css by Circlepuller
+ */
+:root {
+    --base00: #657b83;
+    --base01: #586e75;
+    --base02: #073642;
+    --base03: #002b36;
+    --base0: #839496;
+    --base1: #93a1a1;
+    --base2: #eee8d5;
+    --base3: #fdf6e3;
+    --yellow: #b58900;
+    --orange: #cb4b16;
+    --red: #dc322f;
+    --magenta: #d33682;
+    --violet: #6c71c4;
+    --blue: #268bd2;
+    --cyan: #2aa198;
+    --green: #859900;
+
+    --background: var(--base03);
+    --background-alt: var(--base02);
+
+    --border: var(--base0);
+    --border-light: var(--base01);
+
+    --text: var(--base1);
+}
+/*background and text color*/
+/* font-family: Fira Code;
+    font-family: Open Sans;
+    font-family: DejaVu Serif;*/
+body {
+    background: var(--background);
+    color: var(--text);
+    font-size: 13px;
+}
+.theme-catalog div.threads {
+    margin-left: 20px
+}
+div.blotter {
+    color: var(--red);
+}
+/*Greentext*/
+.quote {
+    color: var(--green);
+}
+
+span.heading {
+    color: var(--red)!important;
+}
+
+/*Board Title */
+@font-face {
+    font-family: 'lain';
+    src: url('https://lainchan.org/stylesheets/fonts/nrdyyh.woff') format('woff')
+}
+h1
+{
+    font-family: 'lain', tahoma;
+    letter-spacing: -2px;
+    font-size: 20pt;
+    text-align: center;
+    color: var(--green)
+}
+div.subtitle {
+    font-size: 10px;
+    color: var(--red)!important;
+}
+
+/*Links*/
+a:any-link {
+    color: var(--blue);
+    text-decoration: none;
+}
+a:any-link:hover {
+    color: var(--magenta);
+    text-decoration: none;
+
+}
+div.post.reply div.body a:any-link {
+    color: var(--blue);
+}
+div.post.reply div.body a:any-link:hover{
+    color: var(--magenta);
+}
+
+a.post_no {
+    text-decoration: none;
+}
+a.post_no:hover {
+    color: var(--green) !important;
+    text-decoration: underline overline;
+}
+
+div.post.reply {
+    background: var(--background-alt);
+    border: var(--border) 1px solid;
+}
+div.post.reply.highlighted {
+    background: var(--background)!important;
+    border: var(--border-light) 1px solid;
+}
+
+/*Post and reply headers*/
+.intro span.subject {
+    font-size: 12px;
+    color: var(--cyan);
+    font-weight: 800;
+}
+.intro span.name {
+    color: var(--yellow);
+    font-weight: 800;
+}
+.intro a.capcode, p.intro a.nametag {
+    color: var(--red);
+    margin-left: 0;
+}
+/*mail*/
+.intro a.email, p.intro a.email span.name, p.intro a.email:hover, p.intro a.email:hover span.name {
+    color: var(--orange);
+    text-decoration: none;
+}
+/*Reply Box*/
+input[type="text"], textarea, select {
+    background: var(--background-alt);
+    color: var(--text);
+    border: var(--border) 1px solid;
+    padding-left: 5px;
+    padding-right: -5px;
+    font-size: 10pt;
+}
+
+form table tr th {
+    background: var(--background-alt);
+    color: var(--text);
+    font-weight: 800;
+    text-align: left;
+    padding: 0;
+}
+input[type="submit"] {
+    background: var(--background--alt);
+    border: var(--border) 1px solid;
+    color: var(--text);
+}
+input[type="submit"]:hover {
+    border: var(--green) 1px solid;
+    color: var(--green);
+}
+input[type="text"]:focus, textarea:focus{
+    border:var(--green) 1px solid;
+}
+
+
+div.banner {
+    background: var(--green);
+    color: var(--background-alt);
+    text-align: center;
+    width: 250px;
+    padding: 4px;
+    padding-left: 12px;
+    padding-right: 12px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 12px;
+}
+div.banner a {
+    color: var(--background-alt);
+}
+div.banner a:hover {
+    color: var(--base2);
+}
+
+span.trip {
+    color: var(--violet);
+}
+.bar {
+    background-color: var(--background);
+}
+.bar.bottom {
+    bottom: 0px;
+    border-top: 1px solid var(--border);
+    background-color: var(--background);
+}
+.bar.top {
+    border-bottom: 1px solid var(--border);
+}
+div.pages a.selected {
+    color: var(--orange);
+}
+div.boardlist {
+    text-align: center;
+}
+
+div.boardlist a:any-link {
+    color: var(--orange);
+    text-shadow: none;
+}
+div.boardlist a:any-link:hover {
+    color: var(--red);
+}
+
+
+.desktop-style div.boardlist:not(.bottom) {
+    position: static;
+    color: var(--text);
+    background-color: var(--background);
+    border: none;
+}
+
+
+img.board_image {
+    border: var(--border) 1px solid;
+}
+
+
+div.report {
+    color: var(--red);
+}
+
+/* Catalog */
+.theme-catalog div.thread {
+    background: var(--background-alt);
+    border: var(--border-light) 1px solid;
+}
+
+.theme-catalog div.thread:hover {
+    background: var(--background);
+    border: var(--border) 1px solid;
+}
+
+/* options.js */
+#options_div, #alert_div {
+    background: var(--background-alt);
+}
+.options_tab_icon {
+    color: var(--text);
+}
+.options_tab_icon.active {
+    color: var(--orange);
+}
+
+.options_tab h2 {
+    color: var(--orange);
+}
+
+.options_tab textarea {
+    background-color: var(--background);
+    color: var(--text);
+}
+
+#quick-reply {
+    border: var(--border) 1px solid;
+}
+
+#quick-reply table {
+    background: var(--background)!important;
+}
+
+
+hr {
+    border: var(--border-light) 1px solid;
+}
+
+/*faq rules*/
+div.ban {
+    background-color: transparent;
+    border: transparent 0px solid;
+}
+
+div.ban h2 {
+    background: transparent;
+    color: var(--green);
+    font-size: 12px;
+}
+
+#watchlist {
+    border: var(--border) 1px solid!important;
+}
+
+#watchlist a {
+    color: var(--violet);
+    text-decoration: none;
+}
+
+#watchlist a:any-link {
+    color: var(--orange);
+}
+/*Code*/
+.hljs {
+    background-color: var(--base03);
+    border: var(--border-light) 1px solid;
+}
+
+.hljs,
+.hljs-subst {
+    color: var(--base1);
+}
+
+.hljs-deletion,
+.hljs-formula,
+.hljs-keyword,
+.hljs-link,
+.hljs-selector-tag {
+    color: var(--red);
+}
+
+.hljs-built_in,
+.hljs-emphasis,
+.hljs-name,
+.hljs-quote,
+.hljs-strong,
+.hljs-title,
+.hljs-variable {
+    color: var(--blue);
+}
+
+.hljs-attr,
+.hljs-params,
+.hljs-template-tag,
+.hljs-type {
+    color: var(--yellow);
+}
+
+.hljs-link_label,
+.hljs-literal,
+.hljs-number,
+.hljs-builtin-name,
+.hljs-doctag,
+.hljs-literal,
+.hljs-number {
+    color: var(--magenta);
+}
+
+.hljs-code,
+.hljs-meta,
+.hljs-regexp,
+.hljs-selector-id,
+.hljs-template-variable {
+    color: var(--orange);
+}
+
+.hljs-addition,
+.hljs-meta-string,
+.hljs-section,
+.hljs-selector-attr,
+.hljs-selector-class,
+.hljs-string,
+.hljs-symbol {
+    color: var(--green);
+}
+
+.hljs-attribute,
+.hljs-bullet,
+.hljs-class,
+.hljs-function,
+.hljs-function .hljs-keyword,
+.hljs-meta-keyword,
+.hljs-selector-pseudo,
+.hljs-tag {
+    color: var(--cyan);
+}
+
+.hljs-comment {
+    color: var(--base01);
+}
+
+
+.hljs-comment,
+.hljs-emphasis {
+    font-style: italic;
+}
+
+.hljs-section,
+.hljs-strong,
+.hljs-tag {
+    font-weight: bold;
+}
+
+/*Clear up boards list*/
+[data-description="Notices"] {
+    display:none;
+}
+/*Clear up boards list*/
+[data-description="Services"] {
+    display:none;
+}
+/*Clear up boards list*/
+[data-description="Elsewhere"] {
+    display:none;
+}

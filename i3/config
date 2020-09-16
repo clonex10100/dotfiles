@@ -28,7 +28,8 @@ floating_modifier $mod
 
 # start a terminal
 #:hbindsym $mod+Return exec i3-sensible-terminal
-bindsym $mod+Return exec kitty
+#bindsym $mod+Return exec kitty
+bindsym $mod+Return exec st
 # kill focused window
 bindsym $mod+Shift+q kill
 
@@ -148,11 +149,13 @@ bindsym $mod+p mode "resize"
 
 #exec --no-startup-id "i3-msg 'workspace 3; append_layout /home/clone/.config/i3/workspace3.json'"
 assign [class="^discord$"] 4
+assign [class="^element (riot)$"] 5
 assign [class="^Thunderbird$"] 4
 assign [class="^Slack$"] 4
 assign [class="^keepassxc$"] 4
 assign [class="^deluge$"] 4
 assign [class="^Steam$"] 5
+assign [class="^itch$"] 5
 for_window [class="Tor Browser"] floating enable
 
 exec picom
@@ -184,9 +187,12 @@ bindsym $mod+m exec "music"
 
 bindsym $mod+Shift+p exec ~/.config/polybar/launch.sh
 
-exec discord
+#exec discord
 exec slack
 exec thunderbird
 exec keepassxc
 exec steam
-exec music
+#exec music
+exec itch
+exec discord
+#exec element-desktop
