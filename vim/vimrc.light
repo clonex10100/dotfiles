@@ -91,7 +91,7 @@ nnoremap <C-o> <C-W>l
 " j next
 noremap n h
 noremap N H
-noremap */}e gj
+noremap e gj
 noremap E J
 noremap i gk
 noremap I K
@@ -111,24 +111,3 @@ nnoremap 0 ^
 "Easily add blank lines
 noremap { O<ESC>
 noremap } o<ESC>
-
-"No line numbers in :te
-au TermOpen * setlocal nonumber norelativenumber
-"Auto enter term mode on open
-autocmd TermOpen * startinsert
-"Auto enter term mode on switch
-autocmd BufWinEnter,WinEnter term://* startinsert
-"Esc to leave :term
-tnoremap <ESC> <C-\><C-n>:q<CR>
-"ctrl h to enter normal
-tnoremap <C-h> <C-\><C-n>
-"Make tab work normally
-"Switch windows
-tnoremap <C-n> <C-\><C-n><C-W>h
-tnoremap <C-e> <C-\><C-n><C-W>j
-tnoremap <C-i> <C-\><C-n><C-W>k
-tnoremap <C-o> <C-\><C-n><C-W>l
-
-
-
-tunmap <Tab>
