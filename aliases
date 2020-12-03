@@ -5,10 +5,15 @@ alias :q="exit"
 alias c="clear"
 alias cn="cd && clear && neofetch && tmux list-sessions"
 alias ls='ls --color=auto'
-alias lo="learn open"
-alias le="learn"
-alias lsu="learn submit"
-alias lff="learn --f-f"
+alias f="ls -lah | grep -i "
+alias sizes="du -shc * | sort -h"
+alias clip="xclip -selection clipboard"
+
+#Editing aliases
+alias v="nvim"
+alias e="sudo -e"
+
+#Program aliases
 alias mpvss="mpv --deband=no --screenshot-format=png"
 alias fplank="sudo make planck/rev5:clonex10100:dfu"
 alias stmrun="~/Desktop/steam-runtime/run.sh"
@@ -19,45 +24,42 @@ alias spectral="sox -n spectrogram"
 alias giga="mv ~/steamapps/devildaggers/dd/survival ~/steamapps/devildaggers/dd/tmp && mv ~/steamapps/devildaggers/dd/giga ~/steamapps/devildaggers/dd/survival && mv ~/steamapps/devildaggers/dd/tmp ~/steamapps/devildaggers/dd/giga"
 alias levi="mv ~/steamapps/devildaggers/dd/survival ~/steamapps/devildaggers/dd/tmp && mv ~/steamapps/devildaggers/dd/levi ~/steamapps/devildaggers/dd/survival && mv ~/steamapps/devildaggers/dd/tmp ~/steamapps/devildaggers/dd/levi"
 alias np="npm install && npm start"
-alias clip="xclip -selection clipboard"
 alias polylaunch="~/.config/polybar/launch.sh"
-alias f="ls -lah | grep -i "
-alias sizes="du -shc * | sort -h"
+alias autobuild="./autogen.sh && ./configure.sh && make && make check"
 
-
-#Torrents
+#Pyroscope
 alias rtimportd="rtcontrol --from-view complete 'realpath=*/anime/*,*/TV/*' 'tagged=!imported' -q -o 'cp -rl \"\$(path)s\" /data2/jellyfin/imports/ && chmod 777 -R \"/data2/jellyfin/imports/\$(path.pathbase)s\" && sonarrImport \"\$(path.pathbase)s\"'"
 #alias rtimportd="rtcontrol --from-view complete 'realpath=*/anime/*,*/TV/*' 'tagged=!imported' -q -o 'cp -rl \"\$(path)s\" /data2/jellyfin/imports/ && chmod 777 -R \"/data2/jellyfin/imports/\$(path.pathbase)s\" '"
 #alias rtimport="rtimportd --tag '+imported' | bash"
 alias rttagc="rtcontrol --from-view tagged 'name=*' --tag '-imported'"
+alias linuxGamesList="rtcontrol --from-view complete 'alias=ggn' 'metafile=*Linux*' -qo '\$(metafile.pathbase)s'"
 
-
-#Alias for pacman installations/removal
+#Pacman
 alias pac="sudo pacman -Syu"
 alias pacr="sudo pacman -Rs"
 alias paci="sudo pacman -Qi"
+
 #Alias for searching in pacman and opening the file in vim
 pacs (){
     pacman -Ss $1 > /tmp/pacs
     nvim /tmp/pacs
 }
 
+#Guix
+alias gix="guix install -c 10"
+alias gixr="guix install"
+alias gixi="guix package -I"
+
+
 #Search a project folder for keyword
 s (){
     grep -Hrn --exclude-dir='.*' "$1" *  
 }
-#Use Neovim
-alias vim="nvim"
-
-#Editing aliases
-alias v="vim"
-alias e="sudo -e"
 
 #Vpn aliases
 alias vf="sudo protonvpn-cli -f"
 alias vp="sudo protonvpn-cli -p2p"
 alias vd="sudo protonvpn-cli -d"
-
 
 #Systemctl aliases
 alias ena="sudo systemctl enable"
@@ -77,9 +79,9 @@ alias dssh="ssh debian@192.168.1.6"
 
 #Project aliases
 alias pmp="python3 ~/projects/mpdClient/src/mp.py"
-alias mpdRestart="mpc prev && mpc pause"
 
 #MPC macros
+alias mpdRestart="mpc prev && mpc pause"
 #plays an album
 al(){
     mpc clear > /dev/null
@@ -106,16 +108,11 @@ ma(){
     vim /tmp/man
 }
 
-#alias for learn
-te(){
-    learn > /tmp/learnOut
-    vim /tmp/learnOut
-}
-
 #upload file to oxo
 oxo(){
     curl -F"file=@$1" http://0x0.st
 }
+
 #screenshot and upload
 upScr(){
     scrot -o /tmp/scrot
@@ -170,16 +167,10 @@ mp3Addc() {
 }
 
 
-alias lab="cd $lab"
 alias osusong="mv ~/Downloads/*.osz ~/.local/share/wineprefixes/osu/drive_c/users/clone/Local\ Settings/Application\ Data/osu\!/Songs/"
-
-#Rtorrent stuff
-alias linuxGamesList="rtcontrol --from-view complete 'alias=ggn' 'metafile=*Linux*' -qo '\$(metafile.pathbase)s'"
 alias col="setxkbmap us colemak"
 
 alias eth="ethminer -P stratum1+ssl://0xD208D3BB8985855F577314bAfAAcCd987c264bFb.clonerig@us1.ethermine.org:5555"
-
-
 setFanSpeed() {
     echo $1
     echo "\n"
@@ -194,7 +185,6 @@ setFanSpeed() {
     #eth && sudo -i &&
 #}
 
-alias autobuild="./autogen.sh && ./configure.sh && make && make check"
 mkScript() {
     script="/home/clone/bin/$1"
     if [[ ! -f "$script" ]]; then
@@ -204,13 +194,13 @@ mkScript() {
         chmod a+x $script
     fi
 }
-aocd() {
-    curl --cookie "session=53616c7465645f5f34042b3eb1665e775af7073e1a996b96dce717b5c7ec254bd8a08ca9dec50943a666f4770e4deece" "https://adventofcode.com/2020/day/$1/input"
-}
 
+#Advent of code downloader
+aocd() {
+    curl --cookie "session=" "https://adventofcode.com/2020/day/$1/input"
+}
 
 #Recover file given unique string
 recover() {
     sudo grep -i -a -B100 -A100 "$1" /dev/sda1 | strings > /tmp/my-recovered-file
 }
-
