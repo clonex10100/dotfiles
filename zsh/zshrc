@@ -1,9 +1,32 @@
 #load agnoster prompt
-fpath=("$HOME/.zprompts" "$fpath[@]")
+#fpath=("$HOME/.zprompts" "$fpath[@]")
 export PATH="$PATH:$HOME/bin"
-autoload -Uz promptinit
-promptinit
-prompt agnoster
+#autoload -Uz promptinit
+#promptinit
+#prompt agnoster
+if [[ "$TERM" == "dumb" ]]; then
+   unset zle_bracketed_paste
+else
+    #load agnoster prompt
+    fpath=("$HOME/.zprompts" "$fpath[@]")
+    autoload -Uz promptinit
+    promptinit
+    prompt agnoster
+    autoload -Uz add-zsh-hook
+fi
+
+if [[ "$TERM" == "st-256color" ]]; then
+    function precmd () {
+        print -Pn -- '\e]2;%n:%~\a'
+    }
+
+    function preexec () {
+        print -Pn -- '\e]2;%n:%~' && print -n -- "${(q)1}\a"
+    }
+
+    add-zsh-hook -Uz precmd precmd
+    add-zsh-hook -Uz preexec preexec
+fi
 
 #source keybinds
 . ~/.zkeybinds
@@ -18,20 +41,25 @@ alias r=". ~/.zshrc"
 
 #Add qmk tools to path
 export PATH="$PATH:$HOME/qmk_firmware/bin"
-
+export PATH="$PATH:$HOME/.emacs.d/bin"
+export PATH="$PATH:$HOME/.local/bin"
+#Add rustup to path
+export PATH="$PATH:$HOME/.cargo/bin"
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"
 
+alias cc="gcc"
+export CC="gcc"
 #Loads rvm as a function
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 
 #Loads ssh-agent
-#if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-#    ssh-agent > "$XDG_RUNTIME_DIR/ssh-agent.env"
-#fi
-#if [[ ! "$SSH_AUTH_SOCK" ]]; then
-#    eval "$(<"$XDG_RUNTIME_DIR/ssh-agent.env")" > /dev/null
-#fi
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+    ssh-agent > "$XDG_RUNTIME_DIR/ssh-agent.env"
+fi
+if [[ ! "$SSH_AUTH_SOCK" ]]; then
+    eval "$(<"$XDG_RUNTIME_DIR/ssh-agent.env")" > /dev/null
+fi
 
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
@@ -45,4 +73,19 @@ zstyle :compinstall filename '/home/clone/.zshrc'
 
 autoload -Uz compinit
 compinit
-# End of lines added by compinstall
+if [ -e /home/clone/.nix-profile/etc/profile.d/nix.sh ]; then . /home/clone/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
+export GUIX_PACKAGE_PATH="/home/clone/guix-packages"
+alias discord="flatpak run com.discordapp.Discord"
+
+GUIX_PROFILE="/home/clone/.guix-profile"
+. "$GUIX_PROFILE/etc/profile"
+
+GUIX_EXTRA_PROFILES=$HOME/.guix-extra-profiles
+for i in $GUIX_EXTRA_PROFILES/*; do
+  profile=$i/$(basename "$i")
+  if [ -f "$profile"/etc/profile ]; then
+    GUIX_PROFILE="$profile"
+    . "$GUIX_PROFILE"/etc/profile
+  fi
+  unset profile
+done

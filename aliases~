@@ -20,9 +20,6 @@ alias giga="mv ~/steamapps/devildaggers/dd/survival ~/steamapps/devildaggers/dd/
 alias levi="mv ~/steamapps/devildaggers/dd/survival ~/steamapps/devildaggers/dd/tmp && mv ~/steamapps/devildaggers/dd/levi ~/steamapps/devildaggers/dd/survival && mv ~/steamapps/devildaggers/dd/tmp ~/steamapps/devildaggers/dd/levi"
 alias np="npm install && npm start"
 alias clip="xclip -selection clipboard"
-alias polylaunch="~/.config/polybar/launch.sh"
-alias f="ls -lah | grep -i "
-alias sizes="du -shc * | sort -h"
 
 
 #Torrents
@@ -77,7 +74,6 @@ alias dssh="ssh debian@192.168.1.6"
 
 #Project aliases
 alias pmp="python3 ~/projects/mpdClient/src/mp.py"
-alias mpdRestart="mpc prev && mpc pause"
 
 #MPC macros
 #plays an album
@@ -193,24 +189,3 @@ setFanSpeed() {
     #exit
     #eth && sudo -i &&
 #}
-
-alias autobuild="./autogen.sh && ./configure.sh && make && make check"
-mkScript() {
-    script="/home/clone/bin/$1"
-    if [[ ! -f "$script" ]]; then
-        touch $script
-        echo "#!/bin/sh" > $script
-        $EDITOR $script
-        chmod a+x $script
-    fi
-}
-aocd() {
-    curl --cookie "session=53616c7465645f5f34042b3eb1665e775af7073e1a996b96dce717b5c7ec254bd8a08ca9dec50943a666f4770e4deece" "https://adventofcode.com/2020/day/$1/input"
-}
-
-
-#Recover file given unique string
-recover() {
-    sudo grep -i -a -B100 -A100 "$1" /dev/sda1 | strings > /tmp/my-recovered-file
-}
-

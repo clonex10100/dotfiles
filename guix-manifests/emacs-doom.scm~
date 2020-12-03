@@ -1,0 +1,16 @@
+(specifications->manifest
+ '(
+   "emacs"
+   "emacs-guix"
+   "ripgrep"
+   "fd"
+   "mit-scheme"
+
+   ;; Vterm
+   "cmake"
+   "make"
+   "libvterm"
+
+   ;;
+   "shellcheck"
+   ))

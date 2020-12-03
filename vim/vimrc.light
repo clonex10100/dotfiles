@@ -73,7 +73,6 @@ nnoremap <leader>y :%y+ <CR>
 nnoremap <leader>v :vsp<CR>
 nnoremap <leader>h :sp<CR>
 nnoremap <C-k> <C-o>
-inoremap <esc> <Nop>
 inoremap <C-h> <esc>
 
 " Smart way to move between windows
