@@ -1,0 +1,662 @@
+#+title: Emacs Configuration
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.vmacs.d/init.el
+* Info
+** Colemake Strategy
+Use neio for movement.
+- h gets i (insert)
+- k gets o (open)
+- j gets n (search)
+- l gets e (word end)
+ 
+I chose these based on my usage frequency and ease of use.
+
+Keys like gj and gk that use movement key semantics should be swapped for colemak movement keys
+
+h needs to replace i in text object otherwise I can't cast line up in visual mode.
+** Todo
+- More snipets
+- More org mode
+- More language support
+  - Web
+  - Ruby
+  - C
+- Special bindings for modes:
+  - Magit
+  - Dired
+  - Flychecker
+- Possibly an evil colemak overlay mode instead of messing directly with maps.
+* Initial setup
+*** Guix Manifest
+Build with
+#+BEGIN_SRC sh
+  guix package -m "~/dotfiles/guix-manifests/emacs.scm" -p "~/.guix-extra-profiles/emacs/emacs"
+#+END_SRC
+
+Marking guile blocks as lisp instead of scheme so geiser will shutup.
+#+BEGIN_SRC lisp :tangle ~/dotfiles/guix-manifests/emacs.scm :noweb yes
+  ;; -*- geiser-scheme-implementation: guile -*-
+  (specifications->manifest
+   '("emacs"
+     <<packages>>))
+#+END_SRC
+*** Set paths
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path "~/.vmacs.d/lisp/")
+  (setq org-directory "~/org/")
+#+END_SRC
+*** Use utf-8
+#+BEGIN_SRC emacs-lisp
+  (prefer-coding-system 'utf-8-unix)
+  (setq coding-system-for-read 'utf-8)
+  (setq coding-system-for-write 'utf-8)
+#+END_SRC
+*** Make tab and C-i read as seperate keys
+#+BEGIN_SRC emacs-lisp
+  (define-key input-decode-map [?\C-i] [C-i])
+#+END_SRC
+* Style
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-doom-themes"
+#+END_SRC
+** Theme
+#+BEGIN_SRC emacs-lisp
+  (load-theme 'doom-solarized-dark t)
+  (set-face-attribute 'default nil :font "Fira Code" :height 90)
+#+END_SRC
+** Tweaks
+*** Y or n
+#+BEGIN_SRC emacs-lisp
+  (defalias 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+*** Transparancy
+Taken from emacs wiki
+#+BEGIN_SRC emacs-lisp
+  (defvar alpha-focused 95)
+  (defvar alpha-unfocused 90)
+  (set-frame-parameter (selected-frame) 'alpha (cons alpha-focused
+                                                     alpha-unfocused))
+  (add-to-list 'default-frame-alist `(alpha . (,alpha-focused . ,alpha-unfocused)))
+#+END_SRC
+*** Disable tab bar buttons
+#+BEGIN_SRC emacs-lisp
+  (setq tab-bar-new-button-show nil)
+  (setq tab-bar-close-button nil)
+#+END_SRC
+* General Config
+** Relative Line Numbers
+#+BEGIN_SRC emacs-lisp
+  (setq display-line-numbers-type 'relative)
+  (dolist (mode '(prog-mode-hook
+                  text-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 1))))
+#+END_SRC
+** Use spaces
+#+BEGIN_SRC emacs-lisp
+  (setq-default indent-tabs-mode nil)
+#+END_SRC
+** Paran matching
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'prog-mode-hook 'show-paren-mode)
+#+END_SRC
+** Buffer behavior
+#+BEGIN_SRC emacs-lisp
+  (setq display-buffer-alist '(("^\\*Async Shell Command\\*$"
+                                (display-buffer-reuse-window
+                                 display-buffer-in-side-window)
+                                (reusable-frames . visible)
+                                (side . bottom))))
+#+END_SRC
+** File hooks
+*** Helper
+#+BEGIN_SRC emacs-lisp
+  (defun save-hook-for-file (file cmd)
+    (when (equal (buffer-file-name) file)
+      (async-shell-command cmd)))
+#+END_SRC
+*** Hooks
+May want this again later but for now <leader> r p to relaod
+
+#+BEGIN_SRC emacs-lisp
+  ;; (add-hook 'after-save-hook
+  ;;           (lambda ()
+  ;;             (save-hook-for-file "~/dotfiles/guix-manifests/emacs.scm"
+  ;;                                 "guix package -m \
+  ;;                                     ~/dotfiles/guix-manifests/emacs.scm \
+  ;;                                     -p \
+  ;;                                     ~/.guix-extra-profiles/emacs/emacs")))
+#+END_SRC
+* Functions
+** Config file macros
+*** Modeify
+#+BEGIN_SRC emacs-lisp
+  (defun modeify (symbol)
+    (intern (concat (symbol-name symbol) "-mode")))
+#+END_SRC
+*** Interactive lambda
+#+BEGIN_SRC emacs-lisp
+  (defmacro i-lambda (symbol)
+    `(lambda () (interactive) ,symbol))
+#+END_SRC
+*** require-md
+Require symbol, activate and diminish its mode at symbol-mode
+#+BEGIN_SRC emacs-lisp
+  (defmacro require-md (symbol)
+    (let ((mode (modeify symbol)))
+      `(progn (require ',symbol)
+              (,mode 1)
+              (diminish ',mode))))
+#+END_SRC
+*** require-d
+Require symbol and diminish its mode
+#+BEGIN_SRC emacs-lisp
+  (defmacro require-d (symbol)
+    (let ((mode (modeify symbol)))
+      `(progn (require ',symbol)
+              (diminish ',mode))))
+#+END_SRC
+** Functions
+**** Toggle Transparency
+taken from emacs wiki
+#+BEGIN_SRC emacs-lisp
+  (defun ne/toggle-transparency ()
+    (interactive)
+    (let ((alpha (frame-parameter nil 'alpha)))
+      (set-frame-parameter
+       nil 'alpha
+       (if (eql (cond ((numberp alpha) alpha)
+                      ((numberp (cdr alpha)) (cdr alpha))
+                      ;; Also handle undocumented (<active> <inactive>) form.
+                      ((numberp (cadr alpha)) (cadr alpha)))
+                100)
+           `(,alpha-focused . ,alpha-unfocused) '(100 . 100)))))
+#+END_SRC
+** Kmacro
+#+BEGIN_SRC emacs-lisp
+  (fset 'quote-word
+        (kmacro-lambda-form [?y ?s ?h ?w ?\"] 0 "%d"))
+  (fset 'surround-sexp
+        (kmacro-lambda-form [?y ?s ?a ?\) ?\)] 0 "%d"))
+#+END_SRC
+* Packages
+** UI
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-counsel" ;; Contains ivy
+  "emacs-ivy-rich"
+
+  "emacs-which-key"
+
+  "emacs-neotree"
+
+  ;;"emacs-doom-modeline"
+  "emacs-powerline"
+  "emacs-airline-themes" ;; Not in guix yet
+
+  "emacs-rainbow-delimiters"
+#+END_SRC
+*** Ivy
+#+BEGIN_SRC emacs-lisp
+  (require-md ivy)
+
+  (setq ivy-use-virtual-buffers t)
+  (require-md counsel)
+  (setcdr (assq 'counsel-M-x ivy-initial-inputs-alist) "")
+#+END_SRC
+**** Ivy addons
+***** Ivy rich
+#+BEGIN_SRC emacs-lisp
+  (require-md ivy-rich)
+#+END_SRC
+*** which-key
+#+BEGIN_SRC emacs-lisp
+  (require-md which-key)
+  (setq which-key-idle-delay 1.5)
+#+END_SRC
+*** Neotree
+TODO: keybindings
+#+BEGIN_SRC emacs-lisp
+  (require 'neotree)
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+  (add-hook 'neo-after-create-hook
+            (lambda (_) (display-line-numbers-mode 0)))
+#+END_SRC
+*** Apearance
+#+BEGIN_SRC emacs-lisp
+  (require 'powerline)
+  (powerline-vim-theme)
+
+  (require 'airline-themes)
+  (load-theme 'airline-solarized t)
+
+  (require-d rainbow-delimiters)
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+#+END_SRC
+** General Additions
+Random packages that are useful in several modes
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-general"
+
+  "emacs-vterm"
+  ;; Vterm deps
+  "cmake"
+  "make"
+  "libvterm"
+
+  "emacs-smartparens"
+  "emacs-helpful"
+  "emacs-guix" ;; Curently broken
+#+END_SRC
+
+*** General
+#+BEGIN_SRC emacs-lisp
+  (use-package general)
+#+END_SRC
+*** Smartparens
+#+BEGIN_SRC emacs-lisp
+  (require-d smartparens)
+  (require 'smartparens-config)
+
+  (smartparens-global-mode)
+#+END_SRC
+*** Helful  
+#+BEGIN_SRC emacs-lisp
+  (require 'helpful)
+
+  (global-set-key (kbd "C-h f") #'helpful-callable)
+  (global-set-key (kbd "C-h v") #'helpful-variable)
+  (global-set-key (kbd "C-h k") #'helpful-key)
+#+END_SRC
+** Org
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-org"
+  "emacs-org-journal"
+  "emacs-org-roam"
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (require 'org)
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (org-indent-mode)
+              (diminish 'org-indent-mode)))
+#+END_SRC
+
+Tangle on save
+#+BEGIN_SRC emacs-lisp
+  (defun ne/org-babel-tangle-dont-ask ()
+    ;; Dynamic scoping to the rescue
+    (let ((org-confirm-babel-evaluate nil))
+      (org-babel-tangle)))
+
+  (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'ne/org-babel-tangle-dont-ask
+                                                'run-at-end 'only-in-org-mode)))
+#+END_SRC
+
+Load babel languages
+#+BEGIN_SRC emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (scheme . t)
+     (python . t)))
+#+END_SRC
+** IDE
+*** General
+#+BEGIN_SRC emacs-lisp :noweb-ref packages
+  "emacs-company"
+
+  "emacs-flycheck"
+  "emacs-flycheck-guile"
+
+
+  "emacs-yasnippet"
+  "emacs-yasnippet-snippets"
+  "emacs-ivy-yasnippet"
+
+  "emacs-projectile"
+
+  "emacs-lsp-mode"
+  "emacs-lsp-ui"
+  "emacs-lsp-ivy"
+#+END_SRC
+**** Company
+*Packages*
+#+BEGIN_SRC emacs-lisp
+  (require-md company)
+  (add-hook 'after-init-hook 'global-company-mode)
+#+END_SRC
+**** Flycheck
+#+BEGIN_SRC emacs-lisp
+  (require 'flycheck)
+  (global-flycheck-mode)
+  (diminish 'flycheck-mode)
+
+  (require 'flycheck-guile)
+#+END_SRC
+**** Yasnippet
+#+BEGIN_SRC emacs-lisp
+  (require 'yasnippet)
+  (require 'ivy-yasnippet)
+  (diminish 'yas-minor-mode)
+  (yas-global-mode 1)
+#+END_SRC
+Enter insert mode on snippet insert
+#+BEGIN_SRC emacs-lisp
+  (advice-add #'ivy-yasnippet :after #'evil-insert-state)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :noweb-ref leader-key
+  "i" #'ivy-yasnippet
+#+END_SRC
+**** Projectile
+#+BEGIN_SRC emacs-lisp
+  (require-md projectile)
+#+END_SRC
+
+Bind projectile commands to leader p
+#+BEGIN_SRC emacs-lisp :noweb-ref leader-key
+  "p" 'projectile-command-map
+#+END_SRC
+**** LSP
+#+BEGIN_SRC emacs-lisp
+  (require 'lsp-mode)
+
+  (require-d lsp-ui)
+  (add-hook 'prog-mode-hook #'lsp-ui-mode)
+
+  (require 'lsp-ivy)
+#+END_SRC
+*** Langs
+TODO: defer loading
+**** Lisp
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-eros"
+#+END_SRC
+  
+#+BEGIN_SRC emacs-lisp
+  (require 'eros)
+  (eros-mode 1)
+#+END_SRC
+**** Scheme
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-geiser"
+  "mit-scheme"
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (require 'xscheme)
+  (require 'geiser)
+  (with-eval-after-load 'geiser-guile
+    (add-to-list 'geiser-guile-load-path "~/.guix-profile/share/guile/site/3.0/"))
+#+END_SRC
+**** Python
+*Packages*
+#+BEGIN_SRC emacs-lisp :noweb-ref packages
+  "python-language-server"
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'python-mode-hook #'lsp-mode)
+#+END_SRC
+
+**** Rust
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-rust-mode"
+  "emacs-flycheck-rust"
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (autoload 'rust-mode "rust-mode" nil t)
+
+#+END_SRC
+
+**** Shell
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "shellcheck"
+#+END_SRC
+
+** Evil
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-evil"
+  "emacs-evil-org"
+  "emacs-evil-smartparens"
+  "emacs-evil-collection"
+  "emacs-evil-surround"
+  "emacs-evil-leader"
+  "emacs-evil-escape"
+#+END_SRC
+*** General
+**** Disabled modes
+Don't enable evil in these modes
+#+BEGIN_SRC emacs-lisp
+  (setq evil-disabled-modes '(vterm))
+#+END_SRC
+*** Evil
+**** Package
+TODO: Orgaize keymap
+#+BEGIN_SRC emacs-lisp
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  (require-md evil)
+  (dolist (mode evil-disabled-modes)
+    (evil-set-initial-state (modeify mode) 'emacs))
+#+END_SRC
+**** Keybinds
+Maybe this should be and evil-colemak layer
+#+BEGIN_SRC emacs-lisp
+  (general-define-key :states '(normal visual operator)
+                      "n" nil
+                      "N" nil
+                      "e" nil
+                      "i" nil
+                      "o" nil
+                      "O" nil)
+
+  (general-define-key :states 'motion
+                      "l" #'evil-forward-word-end
+                      "L" #'evil-forward-WORD-end
+                      "n" #'evil-backward-char
+                      "N" #'evil-window-top
+                      "e" #'evil-next-line
+                      "i" #'evil-previous-line
+                      "o" #'evil-forward-char
+                      "O" #'evil-window-bottom)
+
+  (general-define-key :states 'normal
+                      "E" #'evil-join
+                      "I" #'evil-lookup
+                      "h" #'evil-insert
+                      "H" #'evil-insert-line
+                      "j" #'evil-search-next
+                      "J" #'evil-search-previous
+                      "k" #'evil-open-below
+                      "K" #'evil-open-above)
+
+  (general-define-key :states '(insert opertor visual replace)
+                      "C-h" #'evil-normal-state)
+
+  (general-define-key :states '(visual operator)
+                      "h" evil-inner-text-objects-map)
+
+  (general-define-key :states '(normal insert)
+                      :keymaps 'override
+                      "<C-i> C-n" #'evil-window-left
+                      "<C-i> n" #'evil-window-left
+                      "<C-i> C-e" #'evil-window-down
+                      "<C-i> e" #'evil-window-down
+                      "<C-i> <C-i>" #'evil-window-up
+                      "<C-i> i" #'evil-window-up
+                      "<C-i> C-o" #'evil-window-right
+                      "<C-i> o" #'evil-window-right)
+  (general-define-key :states 'normal
+                      :keymaps 'override
+                      "gt" #'tab-bar-switch-to-next-tab
+                      "gT" #'tab-bar-switch-to-prev-tab)
+  (general-define-key :keymaps 'override
+                      "<C-i> C-n" #'evil-window-left
+                      "<C-i> n" #'evil-window-left
+                      "<C-i> C-e" #'evil-window-down
+                      "<C-i> e" #'evil-window-down
+                      "<C-i> <C-i>" #'evil-window-up
+                      "<C-i> i" #'evil-window-up
+                      "<C-i> C-o" #'evil-window-right
+                      "<C-i> o" #'evil-window-right)
+#+END_SRC
+*** Org
+The keys must be defined in the hook or they will be overwritten by evil-mode. "gi" must be defined because evil mode was overwriting the motion.
+Text objects are defined from scratch instead of setting them in the theme because I need to move from i to h.
+**** Package
+TODO: defer
+#+BEGIN_SRC emacs-lisp
+  (setq evil-org-movement-bindings '((left . "n") (down . "e") (up . "i") (right . "o")))
+  (require-d evil-org)
+  (add-hook 'org-mode-hook 'evil-org-mode)
+#+END_SRC
+**** Keybinds
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'evil-org-mode-hook
+            (lambda ()
+              (evil-org-set-key-theme '(navigation insert))
+              (general-define-key :states 'normal :keymaps 'evil-org-mode-map
+                                  "gi" 'org-backward-element
+                                  "i" nil
+                                  "o" nil
+                                  "O" nil
+                                  "I" nil
+                                  "H" 'evil-org-insert-line
+                                  "k" 'evil-org-open-below
+                                  "K" 'evil-org-open-above)
+              (general-define-key :states '(operator visual) :keymaps 'evil-org-mode-map
+                                  "he" 'evil-org-inner-object
+                                  "hE" 'evil-org-inner-element
+                                  "hr" 'evil-org-inner-greater-element
+                                  "hR" 'evil-org-inner-subtree
+                                  "ae" 'evil-org-an-object
+                                  "aE" 'evil-org-an-element
+                                  "ar" 'evil-org-an-greater-element
+                                  "aR" 'evil-org-an-subtree)))
+#+END_SRC
+
+*** Leader
+#+BEGIN_SRC emacs-lisp :noweb yes
+  (require 'evil-leader)
+  (global-evil-leader-mode)
+  (evil-leader/set-leader ",")
+  (evil-leader/set-key
+    "l" #'comment-region
+    "u" #'uncomment-region
+    "s" #'sp-forward-slurp-sexp
+    "q" #'quote-word
+    "rp" (i-lambda (async-shell-command "guix package -m /home/clone/dotfiles/guix-manifests/emacs.scm -p /home/clone/.guix-extra-profiles/emacs/emacs"))
+    ;;(lambda () (interactive) (async-shell-command "guix package -m /home/clone/dotfiles/guix-manifests/emacs.scm -p /home/clone/.guix-extra-profiles/emacs/emacs"))
+    "n" #'tab-bar-new-tab
+    ;;(tab-bar-mode 1)
+    "w" #'surround-sexp
+    "p" 'projectile-command-map
+    "c" #'evil-ex-nohighlight
+    "t" #'ne/toggle-transparency
+    "v" #'evil-window-vsplit
+    "h" #'evil-window-split
+    <<leader-key>>
+    )
+#+END_SRC
+*** Escape
+#+BEGIN_SRC emacs-lisp
+  (require-md evil-escape)
+  (global-set-key (kbd "<escape>") 'evil-escape)
+#+END_SRC
+*** Collection
+#+BEGIN_SRC emacs-lisp
+  (require 'evil-collection)
+  (dolist (mode evil-disabled-modes)
+    (delete mode evil-collection-mode-list))
+  (defun my-hjkl-rotation (_mode mode-keymaps &rest _rest)
+    (evil-collection-translate-key 'normal mode-keymaps
+      "n" "h"
+      "e" "j"
+      "i" "k"
+      "o" "l"
+      "h" "i"
+      "j" "n"
+      "k" "o"
+      "l" "e"
+      "ge" "gj"
+      "gi" "gk"
+      "gj" "ge"
+      "gk" "gi"))
+  (add-hook 'evil-collection-setup-hook #'my-hjkl-rotation)
+  (evil-collection-init)
+#+END_SRC
+
+** Programs
+Packages that offer a self contained experiance
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-pdf-tools"
+#+END_SRC
+*** Sbbs
+#+BEGIN_SRC emacs-lisp
+  (require 'sbbs)
+  (define-key sbbs-read-mode-map (kbd "C-u")
+    '(lambda () (interactive)
+       (let ((thread-buf (current-buffer)))
+         (sbbs-browse sbbs--board t)
+         (kill-buffer thread-buf))))
+#+END_SRC
+**** Keybinds
+#+BEGIN_SRC emacs-lisp
+  (general-define-key
+   :states 'normal :keymaps 'sbbs-read-mode-map
+   "r" 'sbbs-read-reply
+   "E" 'sbbs-read-next
+   "I" 'sbbs-read-previous
+   "o" 'sbbs-show-replies
+   "n" 'sbbs-show-pop
+   "N" 'sbbs-show-all
+   "u" (lambda () (interactive)
+         (let ((thread-buf (current-buffer)))
+           (sbbs-browse sbbs--board t)
+           (kill-buffer thread-buf))))
+
+  (general-define-key
+   :states 'normal :keymaps 'sbbs-view-mode-map
+   "k" 'sbbs-view-open
+   "RET" 'sbbs-view-open
+   "c" 'sbbs-view-compose)
+#+END_SRC
+*** Pdf tools
+#+BEGIN_SRC emacs-lisp
+  (require 'pdf-tools)
+  (pdf-loader-install)
+  (add-hook 'pdf-view-mode-hook #'pdf-view-midnight-minor-mode)
+#+END_SRC
+
+* Non-package specific keybinds
+** Evil fixes
+*** Info
+Prevent info mode from overwriting movement
+#+BEGIN_SRC emacs-lisp
+  (general-define-key :keymaps 'Info-mode-map "e" nil "i" nil)
+#+END_SRC
+** Non-evil
+*** Switch tabs
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-x <C-left>") 'tab-previous)
+  (global-set-key (kbd "C-x <C-right>") 'tab-next)
+#+END_SRC
+** Programs
+*** Mpc
+#+BEGIN_SRC emacs-lisp
+  (general-define-key :states 'normal :keymaps 'mpc-mode-map
+                      "a" #'mpc-select-toggle
+                      "q" #'mpc-quit
+                      "p" #'mpc-toggle-play
+                      "k" #'mpc-play-at-point)
+#+END_SRC
+

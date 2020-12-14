@@ -41,7 +41,7 @@ alias r=". ~/.zshrc"
 
 #Add qmk tools to path
 export PATH="$PATH:$HOME/qmk_firmware/bin"
-export PATH="$PATH:$HOME/.emacs.d/bin"
+export PATH="$PATH:$HOME/.emacs-doom.d/bin"
 export PATH="$PATH:$HOME/.local/bin"
 #Add rustup to path
 export PATH="$PATH:$HOME/.cargo/bin"
@@ -74,7 +74,7 @@ zstyle :compinstall filename '/home/clone/.zshrc'
 autoload -Uz compinit
 compinit
 if [ -e /home/clone/.nix-profile/etc/profile.d/nix.sh ]; then . /home/clone/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
-export GUIX_PACKAGE_PATH="/home/clone/guix-packages"
+export GUIX_PACKAGE_PATH="$HOME/guix-packages:$HOME/guix-packages/gems"
 alias discord="flatpak run com.discordapp.Discord"
 
 GUIX_PROFILE="/home/clone/.guix-profile"
@@ -89,3 +89,13 @@ for i in $GUIX_EXTRA_PROFILES/*; do
   fi
   unset profile
 done
+
+# Local guix ruby gems
+ruby_hash=$(readlink -f $(which ruby) | cut -d '/' -f 4)
+ruby_ver="$(echo $ruby_hash | cut -d '-' -f 3 | cut -d '.' -f 1-2).0"
+export GEM_HOME=$HOME/.gem/$ruby_hash/$ruby_ver
+#export GEM_PATH="$GEM_PATH:$GEM_HOME:$HOME/.guix-extra-profiles/langs/langs/lib/ruby/gems/$ruby_ver/"
+export GEM_PATH="$GEM_HOME"
+export GEM_SPEC_CACHE=$HOME/.gem/$ruby_hash/specs
+#export PATH="$PATH:$GEM_HOME/bin"
+export PATH="$GEM_HOME/bin:$PATH"

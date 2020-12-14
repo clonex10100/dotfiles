@@ -1,6 +1,6 @@
 #Basic aliases
 alias q="exit"
-alias rtorrent="~/rtorrent/start"
+#alias rtorrent="~/rtorrent/start"
 alias :q="exit"
 alias c="clear"
 alias cn="cd && clear && neofetch && tmux list-sessions"
@@ -47,13 +47,30 @@ pacs (){
 
 #Guix
 alias gix="guix install -c 10"
+alias gixp="guix pull -c 10"
 alias gixr="guix install"
 alias gixi="guix package -I"
-
+guixgem() {
+    guix import gem -r $1 >> $HOME/guix-packages/ruby-local-gems.scm
+    package_name="ruby-$1"
+    guix build $package_name
+    if [[ $? -eq 0 ]]; then
+        sed -i "s/;; AUTOINSERT/\"$package_name\"\n    ;; AUTOINSERT/" ~/langs/ruby.scm
+        ~/langs/load.sh
+    else
+        echo "Error building gem"
+    fi
+}
+viewlog() {
+    bzip2 -dc $1 | less
+}
+mani() {
+    guix package -m "/home/clone/dotfiles/guix-manifests/$1.scm" -p "/home/clone/.guix-extra-profiles/$1/$1"
+}
 
 #Search a project folder for keyword
 s (){
-    grep -Hrn --exclude-dir='.*' "$1" *  
+    grep -Hrn --exclude-dir='.*' "$1" *
 }
 
 #Vpn aliases
@@ -185,7 +202,7 @@ setFanSpeed() {
     #eth && sudo -i &&
 #}
 
-mkScript() {
+mkscript() {
     script="/home/clone/bin/$1"
     if [[ ! -f "$script" ]]; then
         touch $script
@@ -197,10 +214,20 @@ mkScript() {
 
 #Advent of code downloader
 aocd() {
-    curl --cookie "session=" "https://adventofcode.com/2020/day/$1/input"
+    curl --cookie "session=$AOC_SESSION" "https://adventofcode.com/2020/day/$1/input" > input
+    wc input
 }
 
 #Recover file given unique string
 recover() {
     sudo grep -i -a -B100 -A100 "$1" /dev/sda1 | strings > /tmp/my-recovered-file
 }
+
+togif() {
+    ffmpeg \
+    -i $1 \
+    -vf "fps=10,scale=512:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" \
+    -loop 0 \
+    "${1%.*}.gif"
+}
+alias flank="sudo bin/qmk compile -kb planck/rev5 -km clonex10100:dfu"

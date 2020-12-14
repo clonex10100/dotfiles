@@ -1,6 +1,5 @@
 (specifications->manifest
  '(
-   "gcc-toolchain"
    "gdb"
    "clang"
    "pkg-config"

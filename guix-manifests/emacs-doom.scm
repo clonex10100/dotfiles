@@ -1,7 +1,6 @@
 (specifications->manifest
  '(
    "emacs"
-   "emacs-guix"
    "emacs-vterm"
    "ripgrep"
    "fd"
