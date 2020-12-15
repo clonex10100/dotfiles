@@ -17,13 +17,15 @@ h needs to replace i in text object otherwise I can't cast line up in visual mod
 - More snipets
 - More org mode
 - More language support
-  - Web
-  - Ruby
-  - C
+  - [ ] Web
+  - [ ] Ruby
+  - [ ] C
 - Special bindings for modes:
   - Magit
   - Dired
   - Flychecker
+- General keybinds
+  - Smartparens
 - Possibly an evil colemak overlay mode instead of messing directly with maps.
 * Initial setup
 *** Guix Manifest
@@ -65,6 +67,14 @@ Marking guile blocks as lisp instead of scheme so geiser will shutup.
   (set-face-attribute 'default nil :font "Fira Code" :height 90)
 #+END_SRC
 ** Tweaks
+*** Inhibit startup
+#+BEGIN_SRC emacs-lisp
+    (setq inhibit-startup-message t)
+#+END_SRC
+*** Highlight current line
+#+BEGIN_SRC emacs-lisp
+    (add-hook 'prog-mode-hook #'hl-line-mode)
+#+END_SRC
 *** Y or n
 #+BEGIN_SRC emacs-lisp
   (defalias 'yes-or-no-p 'y-or-n-p)
@@ -179,6 +189,24 @@ taken from emacs wiki
         (kmacro-lambda-form [?y ?s ?a ?\) ?\)] 0 "%d"))
 #+END_SRC
 * Packages
+** Core
+Packages needed for this config
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-general"
+"emacs-diminish"
+  #+END_SRC
+  
+*** General
+#+BEGIN_SRC emacs-lisp
+  (require 'general)
+#+END_SRC
+
+*** Dimnish
+#+BEGIN_SRC emacs-lisp
+(require 'diminish)
+#+END_SRC
+
 ** UI
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -194,7 +222,15 @@ taken from emacs wiki
   "emacs-airline-themes" ;; Not in guix yet
 
   "emacs-rainbow-delimiters"
+  "emacs-dashboard"
+
+    "emacs-all-the-icons"
+  #+END_SRC
+*** All the icons
+#+BEGIN_SRC emacs-lisp
+    (require 'all-the-icons)
 #+END_SRC
+
 *** Ivy
 #+BEGIN_SRC emacs-lisp
   (require-md ivy)
@@ -221,6 +257,10 @@ TODO: keybindings
   (add-hook 'neo-after-create-hook
             (lambda (_) (display-line-numbers-mode 0)))
 #+END_SRC
+
+#+BEGIN_SRC emacs-lisp :noweb-ref leader-key
+  "n" #'neotree-toggle
+#+END_SRC
 *** Apearance
 #+BEGIN_SRC emacs-lisp
   (require 'powerline)
@@ -232,11 +272,31 @@ TODO: keybindings
   (require-d rainbow-delimiters)
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
 #+END_SRC
+*** Dashboard
+#+BEGIN_SRC emacs-lisp
+  (require 'dashboard)
+  (setq dashboard-banner-logo-title "Welcome to Emacs Dashboard")
+  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+  ;;(dashboard-setup-startup-hook)
+  (setq dashboard-startup-banner "~/Pictures/emacs_banner.png")
+#+END_SRC
+Dashboard doesn't activate itself if emacs is started with command line arguments, and I pass args for chemacs,
+So it must be manually activated
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'after-init-hook (lambda ()
+                               ;; Display useful lists of items
+                               (dashboard-insert-startupify-lists)))
+  (add-hook 'emacs-startup-hook '(lambda ()
+                                   (switch-to-buffer dashboard-buffer-name)
+                                   (goto-char (point-min))
+                                   (redisplay)
+                                   (run-hooks 'dashboard-after-initialize-hook)))
+#+END_SRC
+
 ** General Additions
 Random packages that are useful in several modes
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
-  "emacs-general"
 
   "emacs-vterm"
   ;; Vterm deps
@@ -249,10 +309,6 @@ Random packages that are useful in several modes
   "emacs-guix" ;; Curently broken
 #+END_SRC
 
-*** General
-#+BEGIN_SRC emacs-lisp
-  (use-package general)
-#+END_SRC
 *** Smartparens
 #+BEGIN_SRC emacs-lisp
   (require-d smartparens)
@@ -274,6 +330,7 @@ Random packages that are useful in several modes
   "emacs-org"
   "emacs-org-journal"
   "emacs-org-roam"
+  "emacs-toc-org"
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -293,6 +350,11 @@ Tangle on save
 
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'ne/org-babel-tangle-dont-ask
                                                 'run-at-end 'only-in-org-mode)))
+#+END_SRC
+TOC
+#+BEGIN_SRC emacs-lisp
+  (require 'toc-org)
+  (add-hook 'org-mode-hook 'toc-org-mode)
 #+END_SRC
 
 Load babel languages
@@ -435,7 +497,7 @@ TODO: defer loading
 **** Disabled modes
 Don't enable evil in these modes
 #+BEGIN_SRC emacs-lisp
-  (setq evil-disabled-modes '(vterm))
+  (setq evil-disabled-modes '(vterm eshell))
 #+END_SRC
 *** Evil
 **** Package
@@ -519,29 +581,48 @@ TODO: defer
   (add-hook 'org-mode-hook 'evil-org-mode)
 #+END_SRC
 **** Keybinds
+Start hook block
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'evil-org-mode-hook
-            (lambda ()
-              (evil-org-set-key-theme '(navigation insert))
-              (general-define-key :states 'normal :keymaps 'evil-org-mode-map
-                                  "gi" 'org-backward-element
-                                  "i" nil
-                                  "o" nil
-                                  "O" nil
-                                  "I" nil
-                                  "H" 'evil-org-insert-line
-                                  "k" 'evil-org-open-below
-                                  "K" 'evil-org-open-above)
-              (general-define-key :states '(operator visual) :keymaps 'evil-org-mode-map
-                                  "he" 'evil-org-inner-object
-                                  "hE" 'evil-org-inner-element
-                                  "hr" 'evil-org-inner-greater-element
-                                  "hR" 'evil-org-inner-subtree
-                                  "ae" 'evil-org-an-object
-                                  "aE" 'evil-org-an-element
-                                  "ar" 'evil-org-an-greater-element
-                                  "aR" 'evil-org-an-subtree)))
+  (add-hook 'evil-org-mode-hook (lambda ()
+
 #+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (evil-org-set-key-theme '(navigation insert))
+#+END_SRC
+
+Colemak fixes
+#+BEGIN_SRC emacs-lisp
+  (general-define-key :states 'normal :keymaps 'evil-org-mode-map
+                      "gi" #'org-backward-element
+                      "i" nil
+                      "o" nil
+                      "O" nil
+                      "I" nil
+                      "H" #'evil-org-insert-line
+                      "k" #'evil-org-open-below
+                      "K" #'evil-org-open-above)
+  (general-define-key :states '(operator visual) :keymaps 'evil-org-mode-map
+                      "he" #'evil-org-inner-object
+                      "hE" #'evil-org-inner-element
+                      "hr" #'evil-org-inner-greater-element
+                      "hR" #'evil-org-inner-subtree
+                      "ae" #'evil-org-an-object
+                      "aE" #'evil-org-an-element
+                      "ar" #'evil-org-an-greater-element
+                      "aR" #'evil-org-an-subtree)
+#+END_SRC
+
+Additions
+#+BEGIN_SRC emacs-lisp
+  (general-define-key :states 'normal :keymaps 'evil-org-mode-map
+                      "X" #'org-toggle-checkbox)
+#+END_SRC
+End hook block
+#+BEGIN_SRC emacs-lisp
+  ))
+#+END_SRC
+
 
 *** Leader
 #+BEGIN_SRC emacs-lisp :noweb yes
