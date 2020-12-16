@@ -1,4 +1,4 @@
-#+title: Emacs Configuration
+#+TITLE: Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ~/.vmacs.d/init.el
 * Info
 ** Colemake Strategy
@@ -69,11 +69,11 @@ Marking guile blocks as lisp instead of scheme so geiser will shutup.
 ** Tweaks
 *** Inhibit startup
 #+BEGIN_SRC emacs-lisp
-    (setq inhibit-startup-message t)
+  (setq inhibit-startup-message t)
 #+END_SRC
 *** Highlight current line
 #+BEGIN_SRC emacs-lisp
-    (add-hook 'prog-mode-hook #'hl-line-mode)
+  (add-hook 'prog-mode-hook #'hl-line-mode)
 #+END_SRC
 *** Y or n
 #+BEGIN_SRC emacs-lisp
@@ -194,8 +194,8 @@ Packages needed for this config
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-general"
-"emacs-diminish"
-  #+END_SRC
+  "emacs-diminish"
+#+END_SRC
   
 *** General
 #+BEGIN_SRC emacs-lisp
@@ -204,31 +204,37 @@ Packages needed for this config
 
 *** Dimnish
 #+BEGIN_SRC emacs-lisp
-(require 'diminish)
+  (require 'diminish)
 #+END_SRC
 
 ** UI
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
-  "emacs-counsel" ;; Contains ivy
-  "emacs-ivy-rich"
+    "emacs-counsel" ;; Contains ivy
+    "emacs-ivy-rich"
+    "emacs-ivy-pass"
+    "emacs-auth-source-pass"
 
-  "emacs-which-key"
+    "emacs-which-key"
 
-  "emacs-neotree"
+    "emacs-neotree"
 
-  ;;"emacs-doom-modeline"
-  "emacs-powerline"
-  "emacs-airline-themes" ;; Not in guix yet
+    ;;"emacs-doom-modeline"
+    "emacs-powerline"
+    "emacs-airline-themes" ;; Not in guix yet
 
-  "emacs-rainbow-delimiters"
-  "emacs-dashboard"
+"emacs-rainbow-mode"
+    "emacs-rainbow-delimiters"
+    "emacs-dashboard"
 
     "emacs-all-the-icons"
-  #+END_SRC
+    "emacs-hl-todo"
+
+  "emacs-visual-fill-column"
+#+END_SRC
 *** All the icons
 #+BEGIN_SRC emacs-lisp
-    (require 'all-the-icons)
+  (require 'all-the-icons)
 #+END_SRC
 
 *** Ivy
@@ -257,20 +263,53 @@ TODO: keybindings
   (add-hook 'neo-after-create-hook
             (lambda (_) (display-line-numbers-mode 0)))
 #+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (defun ne/neotree-refresh-toggle ()
+    (interactive)
+
+    (if (neo-global--window-exists-p)
+        (neotree-hide)
+      (progn 
+        (neotree-show)
+        (neotree-refresh))))
+#+END_SRC
+
 
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
-  "n" #'neotree-toggle
+  "n" #'ne/neotree-refresh-toggle
 #+END_SRC
+*** HL todo
+#+BEGIN_SRC emacs-lisp
+  (require 'hl-todo)
+  (global-hl-todo-mode 1)
+#+END_SRC
+
+Taken from DOOM emacs
+#+BEGIN_SRC emacs-lisp
+  (setq hl-todo-highlight-punctuation ":")
+  (setq hl-todo-keyword-faces 
+        `(("TODO" warning bold)
+          ("FIXME" error bold)
+          ("HACK" font-lock-constant-face bold)
+          ("REVIEW" font-lock-keyword-face bold)
+          ("NOTE" success bold)
+          ("DEPRECATED" font-lock-doc-face bold)
+          ("BUG" error bold)
+          ("XXX" font-lock-constant-face bold)))
+#+END_SRC
+
 *** Apearance
 #+BEGIN_SRC emacs-lisp
-  (require 'powerline)
-  (powerline-vim-theme)
+    (require 'powerline)
+    (powerline-vim-theme)
 
-  (require 'airline-themes)
-  (load-theme 'airline-solarized t)
+    (require 'airline-themes)
+  ;;(setq airline-cursor-colors nil)
+    (setq airline-eshell-colors t)
+    (load-theme 'airline-solarized t)
 
-  (require-d rainbow-delimiters)
-  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+    (require-d rainbow-delimiters)
+    (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
 #+END_SRC
 *** Dashboard
 #+BEGIN_SRC emacs-lisp
@@ -293,6 +332,42 @@ So it must be manually activated
                                    (run-hooks 'dashboard-after-initialize-hook)))
 #+END_SRC
 
+*** Visual Fill column
+#+BEGIN_SRC emacs-lisp
+  (require 'visual-fill-column)
+  (setq visual-fill-column-width 150)
+  (setq visual-fill-column-center-text t)
+
+  (setq ne/visual-center-mode-width 70)
+  (define-minor-mode ne/visual-center-mode
+    "Use `visual-fill-mode' to center text"
+    :init-value nil :lighter nil :global nil
+    (if ne/visual-center-mode
+        (progn 
+          (setq visual-fill-column-width ne/visual-center-mode-width)
+          (setq visual-fill-column-center-text t)
+          (visual-fill-column-mode 1))
+      (progn
+        (setq visual-fill-column-width nil)
+        (setq visual-fill-column-center-text nil)
+        (visual-fill-column-mode 0))))
+
+  (defun ne/visual-center (&optional ARG)
+    (interactive)
+    (if visual-fill-column-mode 
+        (visual-fill-column-mode 0)
+      (progn 
+        (setq visual-fill-column-width 150)
+        (setq visual-fill-column-center-text t)
+        (visual-fill-column-mode 1))))
+  #+END_SRC
+
+*** Rainbow Mode
+#+BEGIN_SRC emacs-lisp
+(require 'rainbow-mode)
+(add-hook 'prog-mode-hook #'rainbow-mode)
+#+END_SRC
+
 ** General Additions
 Random packages that are useful in several modes
 *Guix Packages*
@@ -308,7 +383,6 @@ Random packages that are useful in several modes
   "emacs-helpful"
   "emacs-guix" ;; Curently broken
 #+END_SRC
-
 *** Smartparens
 #+BEGIN_SRC emacs-lisp
   (require-d smartparens)
@@ -379,11 +453,16 @@ Load babel languages
   "emacs-ivy-yasnippet"
 
   "emacs-projectile"
+  "emacs-counsel-projectile"
 
   "emacs-lsp-mode"
   "emacs-lsp-ui"
   "emacs-lsp-ivy"
 #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(add-hook 'prog-mode-hook #'eldoc-mode)
+#+END_SRC
+
 **** Company
 *Packages*
 #+BEGIN_SRC emacs-lisp
@@ -416,6 +495,7 @@ Enter insert mode on snippet insert
 **** Projectile
 #+BEGIN_SRC emacs-lisp
   (require-md projectile)
+  (require-md counsel-projectile)
 #+END_SRC
 
 Bind projectile commands to leader p
@@ -428,6 +508,7 @@ Bind projectile commands to leader p
 
   (require-d lsp-ui)
   (add-hook 'prog-mode-hook #'lsp-ui-mode)
+  (add-hook 'prog-mode-hook #'eldoc-mode)
 
   (require 'lsp-ivy)
 #+END_SRC
@@ -481,6 +562,71 @@ TODO: defer loading
 #+BEGIN_SRC lisp :noweb-ref packages
   "shellcheck"
 #+END_SRC
+
+**** Hoon
+#+BEGIN_SRC emacs-lisp
+  (require 'hoon-mode)
+#+END_SRC
+**** Web
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-web-mode"
+  #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+#+END_SRC
+
+***** Javascript
+
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-nodejs-repl"
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+    (require 'nodejs-repl)
+  (general-define-key :states '(normal insert) :keymaps '(typescript-mode-map tide-mode-map)
+"C-x C-e" #'nodejs-repl-send-last-expression)
+#+END_SRC
+****** Typescript
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-tide"
+#+END_SRC
+
+ #+BEGIN_SRC emacs-lisp
+
+   (require 'tide)
+      (defun setup-tide-mode ()
+        (interactive)
+        (tide-setup)
+        (setq flycheck-check-syntax-automatically '(save mode-enabled))
+        (tide-hl-identifier-mode +1)
+        (eldoc-mode +1)
+        (company-mode +1))
+
+      ;; aligns annotation to the right hand side
+      (setq company-tooltip-align-annotations t)
+
+      ;; formats the buffer before saving
+      (add-hook 'before-save-hook 'tide-format-before-save)
+
+      (add-hook 'typescript-mode-hook #'setup-tide-mode)
+ #+END_SRC
+ 
+TSX
+#+BEGIN_SRC emacs-lisp
+  (require 'web-mode)
+  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
+  (add-hook 'web-mode-hook
+            (lambda ()
+              (when (string-equal "tsx" (file-name-extension buffer-file-name))
+                (setup-tide-mode))))
+  ;; enable typescript-tslint checker
+  (flycheck-add-mode 'typescript-tslint 'web-mode)
+#+END_SRC
+
+ 
+
 
 ** Evil
 *Guix Packages*
@@ -623,7 +769,6 @@ End hook block
   ))
 #+END_SRC
 
-
 *** Leader
 #+BEGIN_SRC emacs-lisp :noweb yes
   (require 'evil-leader)
@@ -636,12 +781,12 @@ End hook block
     "q" #'quote-word
     "rp" (i-lambda (async-shell-command "guix package -m /home/clone/dotfiles/guix-manifests/emacs.scm -p /home/clone/.guix-extra-profiles/emacs/emacs"))
     ;;(lambda () (interactive) (async-shell-command "guix package -m /home/clone/dotfiles/guix-manifests/emacs.scm -p /home/clone/.guix-extra-profiles/emacs/emacs"))
-    "n" #'tab-bar-new-tab
+    "t" (i-lambda (switch-to-buffer-other-tab "*dashboard*"))
     ;;(tab-bar-mode 1)
     "w" #'surround-sexp
     "p" 'projectile-command-map
     "c" #'evil-ex-nohighlight
-    "t" #'ne/toggle-transparency
+    ",t" #'ne/toggle-transparency
     "v" #'evil-window-vsplit
     "h" #'evil-window-split
     <<leader-key>>
@@ -658,19 +803,39 @@ End hook block
   (dolist (mode evil-disabled-modes)
     (delete mode evil-collection-mode-list))
   (defun my-hjkl-rotation (_mode mode-keymaps &rest _rest)
+    (evil-collection-translate-key 'visual mode-keymaps
+      "n" "h"
+      "e" "j"
+      "i" "k"
+      "o" "l")
+
     (evil-collection-translate-key 'normal mode-keymaps
       "n" "h"
       "e" "j"
       "i" "k"
       "o" "l"
+
       "h" "i"
       "j" "n"
       "k" "o"
       "l" "e"
+
+      "N" "H"
+      "E" "J"
+      "I" "K"
+      "O" "L"
+      "H" "I"
+      "J" "N"
+      "K" "O"
+      "L" "E"
+
       "ge" "gj"
       "gi" "gk"
       "gj" "ge"
-      "gk" "gi"))
+      "gk" "gi")
+
+
+    )
   (add-hook 'evil-collection-setup-hook #'my-hjkl-rotation)
   (evil-collection-init)
 #+END_SRC
@@ -711,11 +876,23 @@ Packages that offer a self contained experiance
    "RET" 'sbbs-view-open
    "c" 'sbbs-view-compose)
 #+END_SRC
+*** Keepass
+#+BEGIN_SRC emacs-lisp
+  (require 'keepass-mode)
+#+END_SRC
+
 *** Pdf tools
 #+BEGIN_SRC emacs-lisp
   (require 'pdf-tools)
   (pdf-loader-install)
   (add-hook 'pdf-view-mode-hook #'pdf-view-midnight-minor-mode)
+#+END_SRC
+
+*** Pass
+#+BEGIN_SRC emacs-lisp :noweb-ref leader-key
+  "app" 'ivy-pass
+  "api" 'password-store-insert
+  "apg" 'password-store-generate
 #+END_SRC
 
 * Non-package specific keybinds
@@ -740,4 +917,3 @@ Prevent info mode from overwriting movement
                       "p" #'mpc-toggle-play
                       "k" #'mpc-play-at-point)
 #+END_SRC
-
