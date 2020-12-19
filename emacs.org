@@ -21,9 +21,9 @@ h needs to replace i in text object otherwise I can't cast line up in visual mod
   - [ ] Ruby
   - [ ] C
 - Special bindings for modes:
-  - Magit
-  - Dired
-  - Flychecker
+  - [ ] Magit
+  - [ ] Dired
+  - [ ] Flychecker
 - General keybinds
   - Smartparens
 - Possibly an evil colemak overlay mode instead of messing directly with maps.
@@ -40,8 +40,9 @@ Marking guile blocks as lisp instead of scheme so geiser will shutup.
   ;; -*- geiser-scheme-implementation: guile -*-
   (specifications->manifest
    '("emacs"
-     <<packages>>))
-#+END_SRC
+     <<packages>>
+     ))
+     #+END_SRC
 *** Set paths
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'load-path "~/.vmacs.d/lisp/")
@@ -192,6 +193,16 @@ May want this again later but for now <leader> r p to relaod
   ;;                                     ~/.guix-extra-profiles/emacs/emacs")))
 #+END_SRC
 
+** Use backup folder
+#+BEGIN_SRC emacs-lisp
+(setq backup-directory-alist '(("." . "~/.backup")))
+#+END_SRC
+** Don't use lock files
+Lock files confuse npm start
+#+BEGIN_SRC emacs-lisp
+(setq create-lockfiles nil)
+#+END_SRC
+
 * UI
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -205,12 +216,9 @@ May want this again later but for now <leader> r p to relaod
 
   "emacs-neotree"
 
-  ;;"emacs-doom-modeline"
   "emacs-powerline"
   "emacs-airline-themes" ;; Not in guix yet
 
-  "emacs-rainbow-mode"
-  "emacs-rainbow-delimiters"
   "emacs-dashboard"
 
   "emacs-all-the-icons"
@@ -222,25 +230,24 @@ May want this again later but for now <leader> r p to relaod
 *** Theme
 #+BEGIN_SRC emacs-lisp
   (load-theme 'doom-solarized-dark t)
+#+END_SRC
+*** Font
+#+BEGIN_SRC emacs-lisp
   (set-face-attribute 'default nil :font "Fira Code" :height 90)
 #+END_SRC
 *** All the icons
 #+BEGIN_SRC emacs-lisp
   (require 'all-the-icons)
 #+END_SRC
-
 *** Modeline
 #+BEGIN_SRC emacs-lisp
   (require 'powerline)
   (powerline-vim-theme)
 
   (require 'airline-themes)
-  ;;(setq airline-cursor-colors nil)
   (setq airline-eshell-colors t)
   (load-theme 'airline-solarized t)
 
-  (require-d rainbow-delimiters)
-  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
 #+END_SRC
 ** Tweaks
 *** Inhibit startup
@@ -351,9 +358,10 @@ Random packages that are useful in several modes
   "make"
   "libvterm"
 
+  "emacs-rainbow-mode"
+  "emacs-rainbow-delimiters"
   "emacs-smartparens"
   "emacs-helpful"
-  "emacs-guix" ;; Curently broken
 #+END_SRC
 ** Prog mode
 *** Smartparens
@@ -364,6 +372,15 @@ Random packages that are useful in several modes
   (smartparens-global-mode)
 #+END_SRC
 *** Paran matching
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'prog-mode-hook 'show-paren-mode)
+  (require 'general)
+#+END_SRC
+*** Rainbow delimiters
+#+BEGIN_SRC emacs-lisp
+  (require-d rainbow-delimiters)
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+#+END_SRC
 *** Rainbow Mode
 #+BEGIN_SRC emacs-lisp
   (require 'rainbow-mode)
@@ -571,58 +588,71 @@ TODO: defer loading
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-web-mode"
+  "emacs-skewer-mode"
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
-  (require 'web-mode)
-  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+    (require 'web-mode)
+    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+
+  ;;(require 'skewer-mode)
+;;(add-hook 'html-mode-hook 'skewer-html-mode)
 #+END_SRC
 
 **** Javascript
 
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-nodejs-repl"
+  "emacs-tide"
+  "emacs-rjsx-mode"
+  "emacs-npm-mode"
 #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(setq js-indent-level 2)
+#+END_SRC
+
+***** Node repl
 #+BEGIN_SRC emacs-lisp
   (require 'nodejs-repl)
   (general-define-key :states '(normal insert) :keymaps '(typescript-mode-map tide-mode-map)
                       "C-x C-e" #'nodejs-repl-send-last-expression)
 #+END_SRC
-***** Typescript
-*Guix Packages*
-#+BEGIN_SRC lisp :noweb-ref packages
-  "emacs-tide"
-#+END_SRC
 
+***** Tide
 #+BEGIN_SRC emacs-lisp
-
   (require 'tide)
   (defun setup-tide-mode ()
     (interactive)
     (tide-setup)
-    (setq flycheck-check-syntax-automatically '(save mode-enabled))
     (tide-hl-identifier-mode +1)
+    (setq flycheck-check-syntax-automatically '(save new-line mode-enabled))
+
+
     (eldoc-mode +1)
     (company-mode +1))
 
   ;; aligns annotation to the right hand side
   (setq company-tooltip-align-annotations t)
 
+  ;; Use global tsserver executable
+  (setq tide-tsserver-executable "~/.npm/bin/tsserver")
+
   ;; formats the buffer before saving
   (add-hook 'before-save-hook 'tide-format-before-save)
 
   (add-hook 'typescript-mode-hook #'setup-tide-mode)
 #+END_SRC
- 
-TSX
+
+***** [TJ]sx
 #+BEGIN_SRC emacs-lisp
-  (require 'web-mode)
-  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
-  (add-hook 'web-mode-hook
-            (lambda ()
-              (when (string-equal "tsx" (file-name-extension buffer-file-name))
-                (setup-tide-mode))))
-  ;; enable typescript-tslint checker
-  (flycheck-add-mode 'typescript-tslint 'web-mode)
+  (require 'rjsx-mode)
+  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . rjsx-mode))
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
+   (add-hook 'rjsx-mode-hook #'setup-tide-mode)
+#+END_SRC
+***** NPM
+#+BEGIN_SRC emacs-lisp
+  (require 'npm-mode)
+  (npm-global-mode)
 #+END_SRC
 
 * Evil
@@ -727,7 +757,6 @@ TODO: defer
 Start hook block
 #+BEGIN_SRC emacs-lisp
   (add-hook 'evil-org-mode-hook (lambda ()
-
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -745,6 +774,11 @@ Colemak fixes
                       "H" #'evil-org-insert-line
                       "k" #'evil-org-open-below
                       "K" #'evil-org-open-above)
+
+#+END_SRC
+
+Manually add text operaters because it's easier than rebinding them
+#+BEGIN_SRC emacs-lisp
   (general-define-key :states '(operator visual) :keymaps 'evil-org-mode-map
                       "he" #'evil-org-inner-object
                       "hE" #'evil-org-inner-element
@@ -761,11 +795,11 @@ Additions
   (general-define-key :states 'normal :keymaps 'evil-org-mode-map
                       "X" #'org-toggle-checkbox)
 #+END_SRC
+
 End hook block
 #+BEGIN_SRC emacs-lisp
   ))
 #+END_SRC
-
 ** Leader
 #+BEGIN_SRC emacs-lisp :noweb yes
   (require 'evil-leader)
@@ -777,17 +811,14 @@ End hook block
     "s" #'sp-forward-slurp-sexp
     "q" #'quote-word
     "rp" (i-lambda (async-shell-command "guix package -m /home/clone/dotfiles/guix-manifests/emacs.scm -p /home/clone/.guix-extra-profiles/emacs/emacs"))
-    ;;(lambda () (interactive) (async-shell-command "guix package -m /home/clone/dotfiles/guix-manifests/emacs.scm -p /home/clone/.guix-extra-profiles/emacs/emacs"))
     "t" (i-lambda (switch-to-buffer-other-tab "*dashboard*"))
-    ;;(tab-bar-mode 1)
     "w" #'surround-sexp
     "p" 'projectile-command-map
     "c" #'evil-ex-nohighlight
     ",t" #'ne/toggle-transparency
     "v" #'evil-window-vsplit
     "h" #'evil-window-split
-    <<leader-key>>
-    )
+    <<leader-key>>)
 #+END_SRC
 ** Escape
 #+BEGIN_SRC emacs-lisp
@@ -829,10 +860,8 @@ End hook block
       "ge" "gj"
       "gi" "gk"
       "gj" "ge"
-      "gk" "gi")
+      "gk" "gi"))
 
-
-    )
   (add-hook 'evil-collection-setup-hook #'my-hjkl-rotation)
   (evil-collection-init)
 #+END_SRC
@@ -841,19 +870,19 @@ End hook block
 Prevent info mode from overwriting movement
 #+BEGIN_SRC emacs-lisp
   (general-define-key :keymaps 'Info-mode-map "e" nil "i" nil)
-#+END_SR
-* Non evil keybinds
+#+END_SRC
+* Global keybinds
 ** Switch tabs
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-x <C-left>") 'tab-previous)
   (global-set-key (kbd "C-x <C-right>") 'tab-next)
 #+END_SRC
-
 * Programs
 Packages that offer a self contained experiance
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-pdf-tools"
+  "emacs-guix" ;; Curently broken
 #+END_SRC
 ** Sbbs
 #+BEGIN_SRC emacs-lisp
@@ -889,21 +918,18 @@ Packages that offer a self contained experiance
 #+BEGIN_SRC emacs-lisp
   (require 'keepass-mode)
 #+END_SRC
-
 ** Pdf tools
 #+BEGIN_SRC emacs-lisp
   (require 'pdf-tools)
   (pdf-loader-install)
   (add-hook 'pdf-view-mode-hook #'pdf-view-midnight-minor-mode)
 #+END_SRC
-
 ** Pass
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
   "app" 'ivy-pass
   "api" 'password-store-insert
   "apg" 'password-store-generate
 #+END_SRC
-
 ** Mpc
 #+BEGIN_SRC emacs-lisp
   (general-define-key :states 'normal :keymaps 'mpc-mode-map
