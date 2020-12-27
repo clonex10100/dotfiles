@@ -17,7 +17,7 @@ h needs to replace i in text object otherwise I can't cast line up in visual mod
 - More snipets
 - More org mode
 - More language support
-  - [ ] Web
+  - [X] Web
   - [ ] Ruby
   - [ ] C
 - Special bindings for modes:
@@ -42,7 +42,7 @@ Marking guile blocks as lisp instead of scheme so geiser will shutup.
    '("emacs"
      <<packages>>
      ))
-     #+END_SRC
+#+END_SRC
 *** Set paths
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'load-path "~/.vmacs.d/lisp/")
@@ -195,12 +195,12 @@ May want this again later but for now <leader> r p to relaod
 
 ** Use backup folder
 #+BEGIN_SRC emacs-lisp
-(setq backup-directory-alist '(("." . "~/.backup")))
+  (setq backup-directory-alist '(("." . "~/.backup")))
 #+END_SRC
 ** Don't use lock files
 Lock files confuse npm start
 #+BEGIN_SRC emacs-lisp
-(setq create-lockfiles nil)
+  (setq create-lockfiles nil)
 #+END_SRC
 
 * UI
@@ -474,6 +474,7 @@ Load babel languages
   "emacs-ivy-yasnippet"
 
   "emacs-projectile"
+"emacs-magit"
   "emacs-counsel-projectile"
 
   "emacs-lsp-mode"
@@ -518,6 +519,10 @@ Enter insert mode on snippet insert
 Bind projectile commands to leader p
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
   "p" 'projectile-command-map
+#+END_SRC
+*** Magit
+#+BEGIN_SRC emacs-lisp
+  (require 'magit)
 #+END_SRC
 *** LSP
 #+BEGIN_SRC emacs-lisp
@@ -591,11 +596,11 @@ TODO: defer loading
   "emacs-skewer-mode"
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
-    (require 'web-mode)
-    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+  (require 'web-mode)
+  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
 
   ;;(require 'skewer-mode)
-;;(add-hook 'html-mode-hook 'skewer-html-mode)
+  ;;(add-hook 'html-mode-hook 'skewer-html-mode)
 #+END_SRC
 
 **** Javascript
@@ -607,7 +612,7 @@ TODO: defer loading
   "emacs-npm-mode"
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
-(setq js-indent-level 2)
+  (setq js-indent-level 2)
 #+END_SRC
 
 ***** Node repl
@@ -647,7 +652,7 @@ TODO: defer loading
   (require 'rjsx-mode)
   (add-to-list 'auto-mode-alist '("\\.tsx\\'" . rjsx-mode))
   (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
-   (add-hook 'rjsx-mode-hook #'setup-tide-mode)
+  (add-hook 'rjsx-mode-hook #'setup-tide-mode)
 #+END_SRC
 ***** NPM
 #+BEGIN_SRC emacs-lisp
@@ -813,7 +818,6 @@ End hook block
     "rp" (i-lambda (async-shell-command "guix package -m /home/clone/dotfiles/guix-manifests/emacs.scm -p /home/clone/.guix-extra-profiles/emacs/emacs"))
     "t" (i-lambda (switch-to-buffer-other-tab "*dashboard*"))
     "w" #'surround-sexp
-    "p" 'projectile-command-map
     "c" #'evil-ex-nohighlight
     ",t" #'ne/toggle-transparency
     "v" #'evil-window-vsplit
@@ -923,6 +927,8 @@ Packages that offer a self contained experiance
   (require 'pdf-tools)
   (pdf-loader-install)
   (add-hook 'pdf-view-mode-hook #'pdf-view-midnight-minor-mode)
+  (add-hook 'pdf-view-mode-hook (lambda ()
+                                  (blink-cursor-mode -1)))
 #+END_SRC
 ** Pass
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key

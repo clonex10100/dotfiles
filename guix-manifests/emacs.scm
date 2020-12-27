@@ -1,20 +1,27 @@
 ;; -*- geiser-scheme-implementation: guile -*-
 (specifications->manifest
  '("emacs"
+   "emacs-general"
+   "emacs-diminish"
    "emacs-doom-themes"
    "emacs-counsel" ;; Contains ivy
    "emacs-ivy-rich"
+   "emacs-ivy-pass"
+   "emacs-auth-source-pass"
    
    "emacs-which-key"
    
    "emacs-neotree"
    
-   ;;"emacs-doom-modeline"
    "emacs-powerline"
    "emacs-airline-themes" ;; Not in guix yet
    
-   "emacs-rainbow-delimiters"
-   "emacs-general"
+   "emacs-dashboard"
+   
+   "emacs-all-the-icons"
+   "emacs-hl-todo"
+   
+   "emacs-visual-fill-column"
    
    "emacs-vterm"
    ;; Vterm deps
@@ -22,27 +29,31 @@
    "make"
    "libvterm"
    
+   "emacs-rainbow-mode"
+   "emacs-rainbow-delimiters"
    "emacs-smartparens"
    "emacs-helpful"
-   "emacs-guix" ;; Curently broken
    "emacs-org"
    "emacs-org-journal"
    "emacs-org-roam"
-   "emacs-company"
+   "emacs-toc-org"
+     "emacs-company"
    
-   "emacs-flycheck"
-   "emacs-flycheck-guile"
+     "emacs-flycheck"
+     "emacs-flycheck-guile"
    
    
-   "emacs-yasnippet"
-   "emacs-yasnippet-snippets"
-   "emacs-ivy-yasnippet"
+     "emacs-yasnippet"
+     "emacs-yasnippet-snippets"
+     "emacs-ivy-yasnippet"
    
-   "emacs-projectile"
+     "emacs-projectile"
+   "emacs-magit"
+     "emacs-counsel-projectile"
    
-   "emacs-lsp-mode"
-   "emacs-lsp-ui"
-   "emacs-lsp-ivy"
+     "emacs-lsp-mode"
+     "emacs-lsp-ui"
+     "emacs-lsp-ivy"
    "emacs-eros"
    "emacs-geiser"
    "mit-scheme"
@@ -50,6 +61,12 @@
    "emacs-rust-mode"
    "emacs-flycheck-rust"
    "shellcheck"
+   "emacs-web-mode"
+   "emacs-skewer-mode"
+   "emacs-nodejs-repl"
+   "emacs-tide"
+   "emacs-rjsx-mode"
+   "emacs-npm-mode"
    "emacs-evil"
    "emacs-evil-org"
    "emacs-evil-smartparens"
@@ -57,4 +74,6 @@
    "emacs-evil-surround"
    "emacs-evil-leader"
    "emacs-evil-escape"
-   "emacs-pdf-tools"))
+   "emacs-pdf-tools"
+   "emacs-guix" ;; Curently broken
+   ))

@@ -23,9 +23,12 @@
 #foreground = #e6839496
 #Opaque
 background = #002b36
+#background = #fdf6e3
 background-alt = #073642
+#background-alt = #eee8d5
 
 foreground = #839496
+#foreground = #586e75
 
 emph = #93a1a1
 

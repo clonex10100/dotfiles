@@ -73,7 +73,6 @@ zstyle :compinstall filename '/home/clone/.zshrc'
 
 autoload -Uz compinit
 compinit
-if [ -e /home/clone/.nix-profile/etc/profile.d/nix.sh ]; then . /home/clone/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
 export GUIX_PACKAGE_PATH="$HOME/guix-packages:$HOME/guix-packages/gems"
 alias discord="flatpak run com.discordapp.Discord"
 
@@ -85,17 +84,25 @@ for i in $GUIX_EXTRA_PROFILES/*; do
   profile=$i/$(basename "$i")
   if [ -f "$profile"/etc/profile ]; then
     GUIX_PROFILE="$profile"
-    . "$GUIX_PROFILE"/etc/profile
+    #. "$GUIX_PROFILE"/etc/profile
   fi
   unset profile
 done
 
 # Local guix ruby gems
-ruby_hash=$(readlink -f $(which ruby) | cut -d '/' -f 4)
-ruby_ver="$(echo $ruby_hash | cut -d '-' -f 3 | cut -d '.' -f 1-2).0"
-export GEM_HOME=$HOME/.gem/$ruby_hash/$ruby_ver
+#ruby_hash=$(readlink -f $(which ruby) | cut -d '/' -f 4)
+#ruby_ver="$(echo $ruby_hash | cut -d '-' -f 3 | cut -d '.' -f 1-2).0"
+#export GEM_HOME=$HOME/.gem/$ruby_hash/$ruby_ver
 #export GEM_PATH="$GEM_PATH:$GEM_HOME:$HOME/.guix-extra-profiles/langs/langs/lib/ruby/gems/$ruby_ver/"
-export GEM_PATH="$GEM_HOME"
-export GEM_SPEC_CACHE=$HOME/.gem/$ruby_hash/specs
+#export GEM_PATH="$GEM_HOME"
+#export GEM_SPEC_CACHE=$HOME/.gem/$ruby_hash/specs
 #export PATH="$PATH:$GEM_HOME/bin"
-export PATH="$GEM_HOME/bin:$PATH"
+#export PATH="$GEM_HOME/bin:$PATH"
+#
+export PATH="$PATH:$HOME/node_modules/.bin"
+
+
+#NPM
+export PATH="$HOME/.npm/bin:$PATH"
+
+#if [ -e /home/clone/.nix-profile/etc/profile.d/nix.sh ]; then . /home/clone/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
