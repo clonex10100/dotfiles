@@ -1,6 +1,6 @@
 #Basic aliases
 alias q="exit"
-#alias rtorrent="~/rtorrent/start"
+alias rtorrent="~/rtorrent/start"
 alias :q="exit"
 alias c="clear"
 alias cn="cd && clear && neofetch && tmux list-sessions"
@@ -61,6 +61,18 @@ guixgem() {
         echo "Error building gem"
     fi
 }
+guixgithash() {
+    cd /tmp
+    dir=$(basename $1 .git)
+    if [[ -e "$dir" ]]; then
+        echo "deleting"
+        rm -rf "$dir"
+    fi
+    git clone "$1"
+    cd $dir
+    guix hash -rx .
+}
+
 viewlog() {
     bzip2 -dc $1 | less
 }

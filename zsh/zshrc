@@ -1,6 +1,5 @@
 #load agnoster prompt
 #fpath=("$HOME/.zprompts" "$fpath[@]")
-export PATH="$PATH:$HOME/bin"
 #autoload -Uz promptinit
 #promptinit
 #prompt agnoster
@@ -31,7 +30,8 @@ fi
 #source keybinds
 . ~/.zkeybinds
 
-export EDITOR=nvim
+#export EDITOR=nvim
+export EDITOR=emacsclient
 export XDG_CONFIG_HOME=~/.config
 
 #Load aliases
@@ -41,7 +41,7 @@ alias r=". ~/.zshrc"
 
 #Add qmk tools to path
 export PATH="$PATH:$HOME/qmk_firmware/bin"
-export PATH="$PATH:$HOME/.emacs-doom.d/bin"
+export PATH="$PATH:$HOME/.dmacs.d/bin"
 export PATH="$PATH:$HOME/.local/bin"
 #Add rustup to path
 export PATH="$PATH:$HOME/.cargo/bin"
@@ -73,18 +73,33 @@ zstyle :compinstall filename '/home/clone/.zshrc'
 
 autoload -Uz compinit
 compinit
+#
+# GNU Guix
+#
+#Locales
+export GUIX_LOCPATH="$HOME/.guix-profile/lib/locale"
+export LC_ALL=en_US.utf8
+export LANG=en_US.utf8
+
+#Certs
+export SSL_CERT_DIR="$HOME/.guix-profile/etc/ssl/certs"
+export SSL_CERT_FILE="$HOME/.guix-profile/etc/ssl/certs/ca-certificates.crt"
+export GIT_SSL_CAINFO="$SSL_CERT_FILE"
+
 export GUIX_PACKAGE_PATH="$HOME/guix-packages:$HOME/guix-packages/gems"
-alias discord="flatpak run com.discordapp.Discord"
+
+. "$HOME/.config/guix/current/etc/profile"
 
 GUIX_PROFILE="/home/clone/.guix-profile"
 . "$GUIX_PROFILE/etc/profile"
+
 
 GUIX_EXTRA_PROFILES=$HOME/.guix-extra-profiles
 for i in $GUIX_EXTRA_PROFILES/*; do
   profile=$i/$(basename "$i")
   if [ -f "$profile"/etc/profile ]; then
     GUIX_PROFILE="$profile"
-    #. "$GUIX_PROFILE"/etc/profile
+    . "$GUIX_PROFILE"/etc/profile
   fi
   unset profile
 done
@@ -106,3 +121,6 @@ export PATH="$PATH:$HOME/node_modules/.bin"
 export PATH="$HOME/.npm/bin:$PATH"
 
 #if [ -e /home/clone/.nix-profile/etc/profile.d/nix.sh ]; then . /home/clone/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
+export PATH="$HOME/bin:$PATH"
+
+export RT_HOME="$HOME/rtorrent"
