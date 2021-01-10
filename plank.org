@@ -1,0 +1,394 @@
+#+TITLE: Plank QMK configuration
+* Configuration
+** Config.h
+:PROPERTIES:
+:header-args:c: :tangle ~/keymap/config.h
+:END:
+#+BEGIN_SRC c
+  #pragma once
+#+END_SRC
+*** Layer songs
+#+BEGIN_SRC c
+  #ifdef AUDIO_ENABLE
+  #define STARTUP_SONG SONG(PLANCK_SOUND)
+  // #define STARTUP_SONG SONG(NO_SOUND)
+
+  #define DEFAULT_LAYER_SONGS { SONG(QWERTY_SOUND),       \
+      SONG(COLEMAK_SOUND),                                \
+      SONG(DVORAK_SOUND)                                  \
+    }
+  #endif
+#+END_SRC
+*** Midi
+Prevent use of disabled MIDI features in the keymap
+#+BEGIN_SRC c
+  //#define MIDI_ENABLE_STRICT 1
+#+END_SRC
+
+enable basic MIDI features:
+- MIDI notes can be sent when in Music mode is on
+#+BEGIN_SRC c
+  #define MIDI_BASIC
+#+END_SRC
+
+enable advanced MIDI features:
+- MIDI notes can be added to the keymap
+- Octave shift and transpose
+- Virtual sustain, portamento, and modulation wheel
+- etc.
+#+BEGIN_SRC c
+  //#define MIDI_ADVANCED
+#+END_SRC
+
+override number of MIDI tone keycodes (each octave adds 12 keycodes and allocates 12 bytes)
+#+BEGIN_SRC c
+  //#define MIDI_TONE_KEYCODE_OCTAVES 2
+#+END_SRC
+
+Most tactile encoders have detents every 4 stages
+#+BEGIN_SRC c
+  #define ENCODER_RESOLUTION 4
+#+END_SRC
+*** Tap Dance
+#+BEGIN_SRC c
+  #define TAPPING_TERM 200
+#+END_SRC
+** Rules.mk
+#+BEGIN_SRC shell :tangle ~/keymap/rules.mk
+  CONSOLE_ENABLE = false
+  TAP_DANCE_ENABLE = yes
+#+END_SRC
+* Keymap
+:PROPERTIES:
+:header-args:c: :tangle ~/keymap/keymap.c
+:END:
+** Header
+#+BEGIN_SRC c :noweb yes
+  #include QMK_KEYBOARD_H
+  #include "muse.h"
+
+  extern keymap_config_t keymap_config;
+
+  <<layer-list>>
+  <<custom-keycodes>>
+#+END_SRC
+** Tap dance
+#+BEGIN_SRC c
+  enum {
+    TD_SFT_CAPS,
+  };
+
+  qk_tap_dance_action_t tap_dance_actions[] = {
+    [TD_SFT_CAPS] = ACTION_TAP_DANCE_DOUBLE(KC_LSFT, KC_CAPS),
+  };
+#+END_SRC
+** Shortcuts
+#+BEGIN_SRC c
+  #define LOWER MO(_LOWER)
+  #define RAISE MO(_RAISE)
+  #define COLEMAK DF(_COLEMAK)
+  #define GAMING DF(_GAMING)
+  #define SWTOR DF(_SWTOR)
+  #define NUMPAD TG(_NUMPAD)
+  #define TOUHOU DF(_TOUHOU)
+  #define CTLTAB LCTL_T(KC_TAB)
+  #define RSFTENT RSFT_T(KC_ENT)
+  #define SFTLCK TD(TD_SFT_CAPS)
+#+END_SRC
+** Layers
+#+BEGIN_SRC c
+  const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+#+END_SRC
+*** Layer List
+#+BEGIN_SRC c :noweb-ref layer-list :tangle no
+  enum planck_layers {
+    _COLEMAK,
+    _LOWER,
+    _RAISE,
+    _UTIL,
+    _NUMPAD,
+    _ADJUST,
+    _GAMING,
+    _SWTOR,
+    _TOUHOU
+  };
+#+END_SRC
+*** Colemak
+This is the main, base layer
+|--------+------+-----+-----+-------+-------+-------+-------+-----+-----+---+--------|
+| Esc    | Q    | W   | F   | P     | G     | J     | L     | U   | Y   | ; | Bksp   |
+|--------+------+-----+-----+-------+-------+-------+-------+-----+-----+---+--------|
+| ctl/tb | A    | R   | S   | T     | D     | H     | N     | E   | I   | O | "      |
+|--------+------+-----+-----+-------+-------+-------+-------+-----+-----+---+--------|
+| Shift  | Z    | X   | C   | V     | B     | K     | M     | ,   | .   | / | Enter  |
+|--------+------+-----+-----+-------+-------+-------+-------+-----+-----+---+--------|
+| Del    | Ctrl | GUI | Alt | Lower | Space | space | Raise | Ctl | Alt |   | NUMPAD |
+|--------+------+-----+-----+-------+-------+-------+-------+-----+-----+---+--------|
+#+BEGIN_SRC c
+  [_COLEMAK] = LAYOUT_planck_grid(
+                                  KC_ESC,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_G,    KC_J,    KC_L,    KC_U,    KC_Y,    KC_SCLN, KC_BSPC,
+                                  CTLTAB,  KC_A,    KC_R,    KC_S,    KC_T,    KC_D,    KC_H,    KC_N,    KC_E,    KC_I,    KC_O,    KC_QUOT,
+                                  SFTLCK,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_K,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, RSFTENT,
+                                  KC_DEL,  KC_LCTL, KC_LGUI, KC_LALT, LOWER,   KC_SPC,  KC_SPC,  RAISE,   KC_RCTL, KC_RALT, _______, NUMPAD
+                                  ),
+#+END_SRC
+*** Lower
+Symbol layer
+|-----+---+---+---+---+---+---+---+------+------+------+------+---|
+| ~   | ! | @ | # | $ | % | ^ | & | *    | (    | )    | Bksp |   |
+|-----+---+---+---+---+---+---+---+------+------+------+------+---|
+|     | - | = | [ | ] |   |   | _ | +    | {    | }    |      |   |
+|-----+---+---+---+---+---+---+---+------+------+------+------+---|
+| Del |   |   |   |   |   |   |   |      |      |      |      |   |
+|-----+---+---+---+---+---+---+---+------+------+------+------+---|
+|     |   |   |   |   |   |   |   | Next | Vol- | Vol+ | Play |   |
+|-----+---+---+---+---+---+---+---+------+------+------+------+---|
+#+BEGIN_SRC c
+  [_LOWER] = LAYOUT_planck_grid(
+                                KC_TILD, KC_EXLM,  KC_AT,    KC_HASH,     KC_DLR,      KC_PERC, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, _______,
+                                _______, KC_MINUS, KC_EQUAL, KC_LBRACKET, KC_RBRACKET, _______, _______, KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR, KC_PIPE,
+                                _______,  _______,  _______,  _______,     _______,     _______, _______, _______, _______, _______, _______, _______,
+                                _______, _______,  _______,  _______,     _______,     _______, _______, _______, KC_MNXT, KC_VOLD, KC_VOLU, KC_MPLY
+                                ),
+#+END_SRC
+*** Raise
+This is the easiest to access layer and should be used for things that are used all the time
+Need to find a spot for -,=,[, and ]
+|-----+-------+------+------+-------+---+-----+------+------+------+-------+------|
+| `   |     1 |    2 | 3    | 4     | 5 |   6 | 7    | 8    | 9    | 0     | Bksp |
+|-----+-------+------+------+-------+---+-----+------+------+------+-------+------|
+| Del | BBTAB | CTAB | NTAB | FBTAB |   | Esc | Left | Down | Up   | Right | \    |
+|-----+-------+------+------+-------+---+-----+------+------+------+-------+------|
+|     |       |      | PGDW | PGUP  |   |     | Home | End  |      |       |      |
+|-----+-------+------+------+-------+---+-----+------+------+------+-------+------|
+|     |       |      |      |       |   |     |      | Next | Vol- | Vol+  | Play |
+|-----+-------+------+------+-------+---+-----+------+------+------+-------+------|
+#+BEGIN_SRC c
+  [_RAISE] = LAYOUT_planck_grid(
+                                KC_GRV,   KC_1,    KC_2,    KC_3,      KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,     _______,
+                                _______,  BBTAB,   CTAB,    NTAB,      FBTAB,   _______, KC_ESC,  KC_LEFT, KC_DOWN, KC_UP,   KC_RIGHT, KC_BSLASH,
+                                _______,   _______, _______, KC_PGDOWN, KC_PGUP, _______, _______, KC_HOME, KC_END,  _______, _______, _______,
+                                _______,  _______, _______, _______,   _______, _______, _______, _______, KC_MNXT, KC_VOLD, KC_VOLU,  KC_MPLY
+                                ),
+#+END_SRC
+*** Util
+Util (Lower + Raise)
+For now it's an i3 nav.
+|-----+----+-------+--------+----+----+----+----+----+-----+-----+-----|
+| F1  | F2 | F3    | F4     | F5 | F6 | F7 | F8 | F9 | F10 | F11 | F12 |
+|-----+----+-------+--------+----+----+----+----+----+-----+-----+-----|
+| ADJ |    | SWTOR | Gaming | TH |    |    |    |    |     |     |     |
+|-----+----+-------+--------+----+----+----+----+----+-----+-----+-----|
+|     |    |       |        |    |    |    |    |    |     |     |     |
+|-----+----+-------+--------+----+----+----+----+----+-----+-----+-----|
+|     |    |       |        |    |    |    |    |    |     |     |     |
+|-----+----+-------+--------+----+----+----+----+----+-----+-----+-----|
+#+BEGIN_SRC c
+  [_UTIL] = LAYOUT_planck_grid(
+                               KC_F1,       KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
+                               TG(_ADJUST), _______, SWTOR, GAMING,  TOUHOU,  _______, _______, _______, _______, _______, _______, _______,
+                               _______,     _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+                               _______,     _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
+                               ),
+#+END_SRC
+*** Numpad
+Yep. It's a numpad. Not much else to say
+|---+---+---+---+---+----+----+---+---+---+----+--------+---|
+|   |   |   |   |   |    | +  | 7 | 8 | 9 | () |        |   |
+|---+---+---+---+---+----+----+---+---+---+----+--------+---|
+|   |   |   |   |   |    | -  | 4 | 5 | 6 | )  | NUMPAD |   |
+|---+---+---+---+---+----+----+---+---+---+----+--------+---|
+|   |   |   |   |   |    | *  | 1 | 2 | 3 | /  |        |   |
+|---+---+---+---+---+----+----+---+---+---+----+--------+---|
+|   |   |   |   |   | Sp | ce | 0 | . |   |    |        |   |
+|---+---+---+---+---+----+----+---+---+---+----+--------+---|
+#+BEGIN_SRC c
+  [_NUMPAD] = LAYOUT_planck_grid(
+                                 _______, _______, _______, _______, _______, _______, KC_PLUS,  KC_7, KC_8,   KC_9,   KC_LPRN, _______,
+                                 _______, _______, _______, _______, _______, NUMPAD,  KC_MINUS,  KC_4, KC_5,   KC_6,    KC_RPRN, NUMPAD,
+                                 _______, _______, _______, _______, _______, _______, KC_ASTR, KC_1, KC_2,   KC_3,    KC_SLSH, _______,
+                                 _______, _______, _______, _______, _______, KC_SPC,  KC_SPC,   KC_0, KC_DOT, _______, _______, _______
+                                 ),
+#+END_SRC
+*** Adjust
+Used for rarely used settings and toggles.
+|--------+--------+--------+--------+--------+--------+--------+---+---+---+---+-----|
+| Un-Adj | Reset  |        |        |        |        |        |   |   |   |   | Del |
+|--------+--------+--------+--------+--------+--------+--------+---+---+---+---+-----|
+|        |        |        | Aud on | Audoff | AGnorm | AGswap |   |   |   |   |     |
+|--------+--------+--------+--------+--------+--------+--------+---+---+---+---+-----|
+|        | Voice- | Voice+ | Mus on | Musoff | MIDIon | MIDIof |   |   |   |   |     |
+|--------+--------+--------+--------+--------+--------+--------+---+---+---+---+-----|
+|        |        |        |        |        |        |        |   |   |   |   |     |
+|--------+--------+--------+--------+--------+--------+--------+---+---+---+---+-----|
+#+BEGIN_SRC c
+  [_ADJUST] = LAYOUT_planck_grid(
+                                 TG(_ADJUST), _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+                                 _______,     _______, MU_MOD,  AU_ON,   AU_OFF,  AG_NORM, AG_SWAP, _______, _______, _______, _______, _______,
+                                 _______,     MUV_DE,  MUV_IN,  MU_ON,   MU_OFF,  MI_ON,   MI_OFF,  TERM_ON, TERM_OFF,_______, _______, _______,
+                                 _______,     _______, _______, _______, _______, _______, _______, _______, XXXXXXX, _______, _______, _______
+                                 ),
+#+END_SRC
+*** Gaming
+|-----+-------+---+---+---+-----+----+--------+---+---+---+---|
+| ESC | 1     | 2 | 3 | 4 | 5   | 6  |      7 | 8 | 9 | 0 |   |
+|-----+-------+---+---+---+-----+----+--------+---+---+---+---|
+| M   | Tab   | Q | W | E | R   | T  | COLMAK |   |   |   |   |
+|-----+-------+---+---+---+-----+----+--------+---+---+---+---|
+|     | Shift | A | S | D | F   | G  |        |   |   |   |   |
+|-----+-------+---+---+---+-----+----+--------+---+---+---+---|
+|     | Ctrl  | Z | X | C | spa | ce |        |   |   |   |   |
+|-----+-------+---+---+---+-----+----+--------+---+---+---+---|
+#+BEGIN_SRC c
+  [_GAMING] = LAYOUT_planck_grid(
+                                 KC_ESC, KC_1,     KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_BSPC,
+                                 KC_M,   KC_TAB,   KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    COLEMAK, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+                                 XXXXXXX,KC_LSFT,  KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+                                 XXXXXXX,KC_LCTL,  KC_Z,    KC_X,    KC_C,    KC_SPC,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX
+                                 ),
+#+END_SRC
+*** Swtor
+|-----+-------+---+---+---+-----+----+--------+---+---+---+---|
+| 1   | 2     | 3 | 4 | 5 | 6   | 7  | 8      | 9 | 0 | - | = |
+|-----+-------+---+---+---+-----+----+--------+---+---+---+---|
+| ESC | Tab   | Q | W | E | R   | P  | COLMAK |   |   |   |   |
+|-----+-------+---+---+---+-----+----+--------+---+---+---+---|
+| M   | Shift | A | S | D | F   | L  | o      |   |   |   |   |
+|-----+-------+---+---+---+-----+----+--------+---+---+---+---|
+| i   | Ctrl  | Z | X | C | spa | ce |        |   |   |   |   |
+|-----+-------+---+---+---+-----+----+--------+---+---+---+---|
+#+BEGIN_SRC c
+  [_SWTOR] = LAYOUT_planck_grid(
+                                KC_ESC, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    XXXXXXX,
+                                KC_M,   KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_MINUS,    COLEMAK, XXXXXXX, XXXXXXX, XXXXXXX,  XXXXXXX,
+                                KC_I,   KC_LSFT, KC_A,    KC_S,    KC_D,    KC_F,    KC_EQUAL,    KC_L,    XXXXXXX, XXXXXXX, XXXXXXX,  XXXXXXX,
+                                KC_P,   KC_LCTL, KC_Z,    KC_X,    KC_C,    KC_SPC,  XXXXXXX,     KC_P, KC_O, XXXXXXX, XXXXXXX,  XXXXXXX
+                                ),
+#+END_SRC
+*** Touhou
+|-----+------+-------+---+---+---+--------+---+---+---+---+---|
+| ESC |      |       |   |   |   |        |   | ^ |   |   |   |
+|-----+------+-------+---+---+---+--------+---+---+---+---+---|
+| r   | ctrl | shift | x | z |   | colmak | < | v | > |   |   |
+|-----+------+-------+---+---+---+--------+---+---+---+---+---|
+| q   |      |       |   |   |   |        |   |   |   |   |   |
+|-----+------+-------+---+---+---+--------+---+---+---+---+---|
+|     |      |       |   |   |   |        |   |   |   |   |   |
+|-----+------+-------+---+---+---+--------+---+---+---+---+---|
+#+BEGIN_SRC c
+  [_TOUHOU] = LAYOUT_planck_grid(
+                                 KC_ESC,  _______, _______, _______, _______, _______, _______, _______,  KC_UP,   _______,  _______, _______,
+                                 KC_R,    KC_LCTL, KC_LSFT, KC_X,    KC_Z,    _______, COLEMAK, KC_LEFT,  KC_DOWN, KC_RIGHT, _______,_______,
+                                 KC_Q,    _______, _______, _______, _______, _______, _______, _______,  _______, _______,  _______, _______,
+                                 _______, _______, _______, _______, _______, _______, _______, _______,  _______, _______,  _______, _______
+                                 )
+#+END_SRC
+*** Close keymaps array
+#+BEGIN_SRC c
+  };
+#+END_SRC
+** Layer hook
+Runs everytime the layer state is changed
+#+BEGIN_SRC c
+  uint32_t layer_state_set_user(uint32_t state) {
+    //Checks if _LOWER and _RAISE are both active, if so activates _UTIL
+    return update_tri_layer_state(state, _LOWER, _RAISE, _UTIL);
+  }
+#+END_SRC
+** Custom Keycodes
+#+BEGIN_SRC c :noweb-ref custom-keycodes :tangle no
+  enum planck_keycodes {
+    WS1 = SAFE_RANGE,
+    WS2,
+    WS3,
+    WS4,
+    WS5,
+    FBTAB,
+    BBTAB,
+    CTAB,
+    NTAB,
+    COPY,
+    CUT,
+    PASTE
+  };
+#+END_SRC
+*** Handler
+#+BEGIN_SRC c
+  bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+    case WS1:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LALT("1"));
+      }
+      return false;
+      break;
+    case WS2:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LALT("2"));
+      }
+      return false;
+      break;
+    case WS3:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LALT("3"));
+      }
+      return false;
+      break;
+    case WS4:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LALT("4"));
+      }
+      return false;
+      break;
+    case WS5:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LALT("5"));
+      }
+      return false;
+      break;
+    case BBTAB:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LCTRL(SS_LSFT(SS_TAP(X_TAB))));
+      }
+      return false;
+      break;
+    case NTAB:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LCTRL("t"));
+      }
+      return false;
+      break;
+    case CTAB:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LCTRL("w"));
+      }
+      return false;
+      break;
+    case FBTAB:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LCTRL(SS_TAP(X_TAB)));
+      }
+      return false;
+      break;
+    case COPY:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LCTRL("c"));
+      }
+      return false;
+      break;
+    case CUT:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LCTRL("x"));
+      }
+      return false;
+      break;
+    case PASTE:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LCTRL("v"));
+      }
+      return false;
+      break;
+    }
+    return true;
+  }
+#+END_SRC
