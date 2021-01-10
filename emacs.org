@@ -27,7 +27,6 @@ h needs to replace i in text object otherwise I can't cast line up in visual mod
 - General keybinds
   - Smartparens
 - Possibly an evil colemak overlay mode instead of messing directly with maps.
-  
 * Initial setup
 *** Guix Manifest
 Build with
@@ -40,9 +39,12 @@ Marking guile blocks as lisp instead of scheme so geiser will shutup.
   ;; -*- geiser-scheme-implementation: guile -*-
   (specifications->manifest
    '("emacs"
+     "libcanberra"
+     "freetype"
+     "fontconfig"
      <<packages>>
      ))
-#+END_SRC
+     #+END_SRC
 *** Set paths
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'load-path "~/.vmacs.d/lisp/")
@@ -57,6 +59,12 @@ Marking guile blocks as lisp instead of scheme so geiser will shutup.
 *** Make tab and C-i read as seperate keys
 #+BEGIN_SRC emacs-lisp
   (define-key input-decode-map [?\C-i] [C-i])
+#+END_SRC
+*** Remove toolbar
+#+BEGIN_SRC emacs-lisp
+  (scroll-bar-mode -1)        ; Disable visible scrollbar
+  (tool-bar-mode -1)          ; Disable the toolbar
+  (menu-bar-mode -1)            ; Disable the menu bar
 #+END_SRC
 *** Core
 Packages needed for this config
@@ -73,7 +81,6 @@ Packages needed for this config
 #+BEGIN_SRC emacs-lisp
   (require 'diminish)
 #+END_SRC
-
 * Functions
 ** Config file macros
 *** Modeify
@@ -144,6 +151,26 @@ taken from emacs wiki
         (setq visual-fill-column-center-text t)
         (visual-fill-column-mode 1))))
 #+END_SRC
+**** Calulate guix git hash
+TODO: Make it replace the hash instead of putting in killring
+TODO: Make it work for non-git sources
+#+BEGIN_SRC emacs-lisp
+  (defun ne/guix-git-hash ()
+    (interactive)
+    (let* ((sexp (sexp-at-point))
+           (url (cadr (assoc 'url sexp)))
+           (commit (cadr (assoc 'commit sexp)))
+           (odir (cadr (split-string (pwd))))
+           (dir (file-name-sans-extension (car (last (split-string url "/"))))))
+      (message dir)
+      (cd "/tmp")
+      (delete-directory dir t)
+      (shell-command (concat "git clone " url))
+      (cd dir)
+      (shell-command (concat "git checkout -q " commit))
+      (kill-new (string-trim-right (shell-command-to-string "guix hash -rx .")))
+      (cd odir)))
+#+END_SRC
 
 ** Kmacro
 #+BEGIN_SRC emacs-lisp
@@ -152,7 +179,47 @@ taken from emacs wiki
   (fset 'surround-sexp
         (kmacro-lambda-form [?y ?s ?a ?\) ?\)] 0 "%d"))
 #+END_SRC
+** Variables
+*** Solarized colors
+#+BEGIN_SRC emacs-lisp
+  (setq s_base03 "#002b36")
+  (setq s_base02 "#073642")
+  (setq s_base01 "#586e75")
+  (setq s_base00 "#657b83")
+  (setq s_base0 "#839496")
+  (setq s_base1 "#93a1a1")
+  (setq s_base2 "#eee8d5")
+  (setq s_base3 "#fdf6e3")
+  (setq s_yellow "#b58900")
+  (setq s_orange "#cb4b16")
+  (setq s_red "#dc322f")
+  (setq s_magenta "#d33682")
+  (setq s_violet "#6c71c4")
+  (setq s_blue "#268bd2")
+  (setq s_cyan "#2aa198")
+  (setq s_green "#859900")
+#+END_SRC
+* Exwm
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-exwm"
+  "emacs-dmenu"
+#+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  ;; (require 'exwm)
+  ;; (require 'exwm-config)
+  ;; (exwm-config-default)
+  ;; (general-define-key :keymaps 'override
+  ;;                     "s-d" (i-lambda '(shell-command "firefox")))
+#+END_SRC
+** Keybinds
+*** General
+*** Shortcuts
+** Dmenu
+#+BEGIN_SRC emacs-lisp
+  (require 'dmenu)
+#+END_SRC
 * General Config
 ** Relative Line Numbers
 #+BEGIN_SRC emacs-lisp
@@ -202,7 +269,6 @@ Lock files confuse npm start
 #+BEGIN_SRC emacs-lisp
   (setq create-lockfiles nil)
 #+END_SRC
-
 * UI
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -233,6 +299,7 @@ Lock files confuse npm start
 #+END_SRC
 *** Font
 #+BEGIN_SRC emacs-lisp
+  (setq frame-inhibit-implied-resize t)
   (set-face-attribute 'default nil :font "Fira Code" :height 90)
 #+END_SRC
 *** All the icons
@@ -384,7 +451,8 @@ Random packages that are useful in several modes
 *** Rainbow Mode
 #+BEGIN_SRC emacs-lisp
   (require 'rainbow-mode)
-  (add-hook 'prog-mode-hook #'rainbow-mode)
+  (dolist (mode-hook '(web-mode-hook css-mode-hook tide-mode-hook))
+    (add-hook mode-hook #'rainbow-mode))
 #+END_SRC
 *** HL todo
 #+BEGIN_SRC emacs-lisp
@@ -413,6 +481,16 @@ Taken from DOOM emacs
 #+BEGIN_SRC emacs-lisp
   (add-hook 'prog-mode-hook #'eldoc-mode)
 #+END_SRC
+*** Git gutter
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-git-gutter"
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (require-d git-gutter)
+  (global-git-gutter-mode +1)
+#+END_SRC
+
 ** Visual Fill column
 #+BEGIN_SRC emacs-lisp
   (require 'visual-fill-column)
@@ -434,6 +512,7 @@ Taken from DOOM emacs
             (lambda ()
               (org-indent-mode)
               (diminish 'org-indent-mode)))
+  (add-to-list 'org-agenda-files "~/org/")
 #+END_SRC
 
 Tangle on save
@@ -460,6 +539,15 @@ Load babel languages
      (scheme . t)
      (python . t)))
 #+END_SRC
+** Additions
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-anki-editor"
+#+END_SRC
+*** Anki editor
+#+BEGIN_SRC emacs-lisp
+  (require 'anki-editor)
+#+END_SRC
 * IDE
 ** General
 #+BEGIN_SRC emacs-lisp :noweb-ref packages
@@ -474,42 +562,49 @@ Load babel languages
   "emacs-ivy-yasnippet"
 
   "emacs-projectile"
-"emacs-magit"
+  "emacs-magit"
   "emacs-counsel-projectile"
 
   "emacs-lsp-mode"
   "emacs-lsp-ui"
   "emacs-lsp-ivy"
-#+END_SRC
-*** Company
-*Packages*
-#+BEGIN_SRC emacs-lisp
+#+end_src
+*** company
+*packages*
+#+begin_src emacs-lisp
   (require-md company)
   (add-hook 'after-init-hook 'global-company-mode)
-#+END_SRC
-*** Flycheck
-#+BEGIN_SRC emacs-lisp
+#+end_src
+*** flycheck
+#+begin_src emacs-lisp
   (require 'flycheck)
   (global-flycheck-mode)
   (diminish 'flycheck-mode)
 
   (require 'flycheck-guile)
-#+END_SRC
-*** Yasnippet
-#+BEGIN_SRC emacs-lisp
+#+end_src
+*** yasnippet
+#+begin_src emacs-lisp
   (require 'yasnippet)
   (require 'ivy-yasnippet)
   (diminish 'yas-minor-mode)
   (yas-global-mode 1)
-#+END_SRC
-Enter insert mode on snippet insert
-#+BEGIN_SRC emacs-lisp
+#+end_src
+enter insert mode on snippet insert
+#+begin_src emacs-lisp
   (advice-add #'ivy-yasnippet :after #'evil-insert-state)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref leader-key
+  "i" #'ivy-yasnippet
+#+end_SRC
+
+Use guix snippets
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'yasnippet
+    (add-to-list 'yas-snippet-dirs "~/builds/guix/etc/snippets"))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :noweb-ref leader-key
-  "i" #'ivy-yasnippet
-#+END_SRC
 *** Projectile
 #+BEGIN_SRC emacs-lisp
   (require-md projectile)
@@ -523,14 +618,28 @@ Bind projectile commands to leader p
 *** Magit
 #+BEGIN_SRC emacs-lisp
   (require 'magit)
+
+  ;; (general-define-key :keymaps 'magit-mode-map
+  ;;                     "e" #'magit-section-forward
+  ;;                     "i" #'magit-section-backward
+  ;;                     "n" #'magit-ediff-dwim
+  ;;                     "p" #'magit-gitignore)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :noweb-ref leader-key
+  "am" #'magit-status
 #+END_SRC
 *** LSP
 #+BEGIN_SRC emacs-lisp
   (require 'lsp-mode)
+  (require 'lsp-clients)
 
   (require-d lsp-ui)
   (add-hook 'prog-mode-hook #'lsp-ui-mode)
   (add-hook 'prog-mode-hook #'eldoc-mode)
+
+  ;; (general-define-key :keymaps 'lsp-mode-map :states 'normal
+  ;;                     "I" #'lsp-find-definition)
 
   (require 'lsp-ivy)
 #+END_SRC
@@ -557,7 +666,9 @@ TODO: defer loading
   (require 'xscheme)
   (require 'geiser)
   (with-eval-after-load 'geiser-guile
-    (add-to-list 'geiser-guile-load-path "~/.guix-profile/share/guile/site/3.0/"))
+    (add-to-list 'geiser-guile-load-path "~/.guix-profile/share/guile/site/3.0/")
+    (add-to-list 'geiser-guile-load-path "~/builds/guix"))
+
 #+END_SRC
 *** Python
 *Packages*
@@ -565,7 +676,7 @@ TODO: defer loading
   "python-language-server"
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'python-mode-hook #'lsp-mode)
+  (add-hook 'python-mode-hook #'lsp)
 #+END_SRC
 
 *** Rust
@@ -611,10 +722,10 @@ TODO: defer loading
   "emacs-rjsx-mode"
   "emacs-npm-mode"
 #+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   (setq js-indent-level 2)
 #+END_SRC
-
 ***** Node repl
 #+BEGIN_SRC emacs-lisp
   (require 'nodejs-repl)
@@ -646,20 +757,29 @@ TODO: defer loading
 
   (add-hook 'typescript-mode-hook #'setup-tide-mode)
 #+END_SRC
-
 ***** [TJ]sx
 #+BEGIN_SRC emacs-lisp
   (require 'rjsx-mode)
   (add-to-list 'auto-mode-alist '("\\.tsx\\'" . rjsx-mode))
   (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
-  (add-hook 'rjsx-mode-hook #'setup-tide-mode)
+  ;;(add-hook 'rjsx-mode-hook #'setup-tide-mode)
 #+END_SRC
 ***** NPM
 #+BEGIN_SRC emacs-lisp
   (require 'npm-mode)
-  (npm-global-mode)
+  (diminish 'npm-mode)
+  (add-hook 'rjsx-mode-hook #'npm-mode)
+#+END_SRC
+*** Lua
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-lua-mode"
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (require 'lua-mode)
+#+END_SRC
+ 
 * Evil
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -675,7 +795,7 @@ TODO: defer loading
 *** Disabled modes
 Don't enable evil in these modes
 #+BEGIN_SRC emacs-lisp
-  (setq evil-disabled-modes '(vterm eshell))
+  (setq evil-disabled-modes '());;'(vterm eshell))
 #+END_SRC
 ** Evil
 *** Package
@@ -710,7 +830,7 @@ Maybe this should be and evil-colemak layer
 
   (general-define-key :states 'normal
                       "E" #'evil-join
-                      "I" #'evil-lookup
+                      "I" #'lsp-find-definition
                       "h" #'evil-insert
                       "H" #'evil-insert-line
                       "j" #'evil-search-next
@@ -816,12 +936,14 @@ End hook block
     "s" #'sp-forward-slurp-sexp
     "q" #'quote-word
     "rp" (i-lambda (async-shell-command "guix package -m /home/clone/dotfiles/guix-manifests/emacs.scm -p /home/clone/.guix-extra-profiles/emacs/emacs"))
-    "t" (i-lambda (switch-to-buffer-other-tab "*dashboard*"))
+    "tn" (i-lambda (switch-to-buffer-other-tab "*dashboard*"))
+    "tc" #'tab-bar-close-tab
     "w" #'surround-sexp
     "c" #'evil-ex-nohighlight
     ",t" #'ne/toggle-transparency
     "v" #'evil-window-vsplit
     "h" #'evil-window-split
+    "av" #'vterm
     <<leader-key>>)
 #+END_SRC
 ** Escape
@@ -832,8 +954,10 @@ End hook block
 ** Collection
 #+BEGIN_SRC emacs-lisp
   (require 'evil-collection)
+
   (dolist (mode evil-disabled-modes)
     (delete mode evil-collection-mode-list))
+
   (defun my-hjkl-rotation (_mode mode-keymaps &rest _rest)
     (evil-collection-translate-key 'visual mode-keymaps
       "n" "h"
@@ -856,15 +980,25 @@ End hook block
       "E" "J"
       "I" "K"
       "O" "L"
+
       "H" "I"
       "J" "N"
       "K" "O"
       "L" "E"
 
+      "gn" "gh"
       "ge" "gj"
       "gi" "gk"
-      "gj" "ge"
-      "gk" "gi"))
+      "go" "gl"
+
+
+      "gh" "gi"
+      "gj" "gn"
+      "gk" "go"
+      "gl" "ge"
+      ;;C-movement binds
+      ))
+
 
   (add-hook 'evil-collection-setup-hook #'my-hjkl-rotation)
   (evil-collection-init)
@@ -874,6 +1008,27 @@ End hook block
 Prevent info mode from overwriting movement
 #+BEGIN_SRC emacs-lisp
   (general-define-key :keymaps 'Info-mode-map "e" nil "i" nil)
+#+END_SRC
+*** Magit
+Translate-key doesn't work on magit
+Also want "l" to be log instead of ediff ("o")
+#+BEGIN_SRC emacs-lisp
+  (evil-collection-define-key 'normal 'magit-mode-map
+    "n" #'magit-dispatch
+    "e" #'magit-section-forward
+    "i" #'magit-section-backward
+    "o" #'magit-ediff-dwim
+
+    "h" #'magit-gitignore
+    "k" #'magit-reset-quickly
+    "e" #'magit-section-forward
+    "j" #'evil-search-next
+
+    "gj" #'magit-jump-to-untracked
+
+    "gn" #'magit-section-up
+    "ge" #'magit-section-forward-sibling
+    "gi" #'magit-section-backward-sibling)
 #+END_SRC
 * Global keybinds
 ** Switch tabs
@@ -886,7 +1041,10 @@ Packages that offer a self contained experiance
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-pdf-tools"
+
   "emacs-guix" ;; Curently broken
+  "emacs-weechat"
+  "emacs-emamux"
 #+END_SRC
 ** Sbbs
 #+BEGIN_SRC emacs-lisp
@@ -927,8 +1085,7 @@ Packages that offer a self contained experiance
   (require 'pdf-tools)
   (pdf-loader-install)
   (add-hook 'pdf-view-mode-hook #'pdf-view-midnight-minor-mode)
-  (add-hook 'pdf-view-mode-hook (lambda ()
-                                  (blink-cursor-mode -1)))
+  (add-hook 'pdf-view-mode-hook (lambda () (blink-cursor-mode -1)))
 #+END_SRC
 ** Pass
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
@@ -943,4 +1100,40 @@ Packages that offer a self contained experiance
                       "q" #'mpc-quit
                       "p" #'mpc-toggle-play
                       "k" #'mpc-play-at-point)
+#+END_SRC
+** Guix
+#+BEGIN_SRC emacs-lisp
+  (require 'guix)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp :noweb-ref leader-key
+  "ag" #'guix
+#+END_SRC
+** Weechat
+#+BEGIN_SRC emacs-lisp
+  (require 'weechat)
+  ;; (defcustom weechat-color-list '(unspecified "black" "dark gray" "dark red" "red"
+  ;;                                             "dark green" "light green" "brown"
+  ;;                                             "yellow" "dark blue" "light blue"
+  ;;                                             "dark magenta" "magenta" "dark cyan"
+  ;;                                             "light cyan" "gray" "white")
+  (setq weechat-color-list '("black" "black" "dim gray" "dark red" "red"
+                             "dark green" "green" "brown"
+                             "orange" "dark blue" "blue"
+                             "dark magenta" "magenta" "dark cyan"
+                             "royal blue" "dark gray" "gray"))
+
+  (weechat-connect "localhost" 9000 "2dLToM3HVaEpGaNT")
+  (setq weechat-color-list (list 'unspecified s_base03 s_base01 s_red s_red
+                                 s_green s_green s_base1
+                                 s_orange s_blue s_blue
+                                 s_violet s_magenta s_base1
+                                 s_blue s_base1 s_base0))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :noweb-ref leader-key
+  "awm" #'weechat-monitor-buffer
+#+END_SRC
+** Tmux
+#+BEGIN_SRC emacs-lisp
+  (require 'emamux)
 #+END_SRC

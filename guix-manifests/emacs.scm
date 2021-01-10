@@ -1,8 +1,13 @@
 ;; -*- geiser-scheme-implementation: guile -*-
 (specifications->manifest
  '("emacs"
+   "libcanberra"
+   "freetype"
+   "fontconfig"
    "emacs-general"
    "emacs-diminish"
+   "emacs-exwm"
+   "emacs-dmenu"
    "emacs-doom-themes"
    "emacs-counsel" ;; Contains ivy
    "emacs-ivy-rich"
@@ -33,27 +38,29 @@
    "emacs-rainbow-delimiters"
    "emacs-smartparens"
    "emacs-helpful"
+   "emacs-git-gutter"
    "emacs-org"
    "emacs-org-journal"
    "emacs-org-roam"
    "emacs-toc-org"
-     "emacs-company"
+   "emacs-anki-editor"
+   "emacs-company"
    
-     "emacs-flycheck"
-     "emacs-flycheck-guile"
+   "emacs-flycheck"
+   "emacs-flycheck-guile"
    
    
-     "emacs-yasnippet"
-     "emacs-yasnippet-snippets"
-     "emacs-ivy-yasnippet"
+   "emacs-yasnippet"
+   "emacs-yasnippet-snippets"
+   "emacs-ivy-yasnippet"
    
-     "emacs-projectile"
+   "emacs-projectile"
    "emacs-magit"
-     "emacs-counsel-projectile"
+   "emacs-counsel-projectile"
    
-     "emacs-lsp-mode"
-     "emacs-lsp-ui"
-     "emacs-lsp-ivy"
+   "emacs-lsp-mode"
+   "emacs-lsp-ui"
+   "emacs-lsp-ivy"
    "emacs-eros"
    "emacs-geiser"
    "mit-scheme"
@@ -67,6 +74,7 @@
    "emacs-tide"
    "emacs-rjsx-mode"
    "emacs-npm-mode"
+   "emacs-lua-mode"
    "emacs-evil"
    "emacs-evil-org"
    "emacs-evil-smartparens"
@@ -75,5 +83,8 @@
    "emacs-evil-leader"
    "emacs-evil-escape"
    "emacs-pdf-tools"
+   
    "emacs-guix" ;; Curently broken
+   "emacs-weechat"
+   "emacs-emamux"
    ))
