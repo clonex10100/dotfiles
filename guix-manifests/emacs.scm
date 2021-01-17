@@ -38,11 +38,13 @@
    "emacs-rainbow-delimiters"
    "emacs-smartparens"
    "emacs-helpful"
+   "emacs-avy"
    "emacs-git-gutter"
    "emacs-org"
    "emacs-org-journal"
    "emacs-org-roam"
    "emacs-toc-org"
+   "emacs-org-superstar"
    "emacs-anki-editor"
    "emacs-company"
    
@@ -87,4 +89,6 @@
    "emacs-guix" ;; Curently broken
    "emacs-weechat"
    "emacs-emamux"
+   "emacs-elfeed"
+   "emacs-elfeed-org"
    ))

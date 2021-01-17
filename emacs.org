@@ -26,7 +26,9 @@ h needs to replace i in text object otherwise I can't cast line up in visual mod
   - [ ] Flychecker
 - General keybinds
   - Smartparens
+    - Forward/Backward Slurp/Barf
 - Possibly an evil colemak overlay mode instead of messing directly with maps.
+- List of modes with no line numbers instead of adding hooks to remove
 * Initial setup
 *** Guix Manifest
 Build with
@@ -60,13 +62,7 @@ Marking guile blocks as lisp instead of scheme so geiser will shutup.
 #+BEGIN_SRC emacs-lisp
   (define-key input-decode-map [?\C-i] [C-i])
 #+END_SRC
-*** Remove toolbar
-#+BEGIN_SRC emacs-lisp
-  (scroll-bar-mode -1)        ; Disable visible scrollbar
-  (tool-bar-mode -1)          ; Disable the toolbar
-  (menu-bar-mode -1)            ; Disable the menu bar
-#+END_SRC
-*** Core
+*** Core Packages
 Packages needed for this config
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -110,7 +106,7 @@ Require symbol and diminish its mode
       `(progn (require ',symbol)
               (diminish ',mode))))
 #+END_SRC
-** Functions
+** Interactvie Functions
 **** Toggle Transparency
 taken from emacs wiki
 #+BEGIN_SRC emacs-lisp
@@ -128,7 +124,7 @@ taken from emacs wiki
 #+END_SRC
 **** Centered mode
 #+BEGIN_SRC emacs-lisp
-  (setq ne/visual-center-mode-width 70)
+  (setq ne/visual-center-mode-width 100)
   (define-minor-mode ne/visual-center-mode
     "Use `visual-fill-mode' to center text"
     :init-value nil :lighter nil :global nil
@@ -151,9 +147,9 @@ taken from emacs wiki
         (setq visual-fill-column-center-text t)
         (visual-fill-column-mode 1))))
 #+END_SRC
-**** Calulate guix git hash
-TODO: Make it replace the hash instead of putting in killring
-TODO: Make it work for non-git sources
+**** Calculate guix git hash
+- TODO: Make it replace the hash instead of putting in killring
+- TODO: Make it work for non-git sources
 #+BEGIN_SRC emacs-lisp
   (defun ne/guix-git-hash ()
     (interactive)
@@ -172,7 +168,7 @@ TODO: Make it work for non-git sources
       (cd odir)))
 #+END_SRC
 
-** Kmacro
+** Kmacros
 #+BEGIN_SRC emacs-lisp
   (fset 'quote-word
         (kmacro-lambda-form [?y ?s ?h ?w ?\"] 0 "%d"))
@@ -293,6 +289,12 @@ Lock files confuse npm start
   "emacs-visual-fill-column"
 #+END_SRC
 ** Apperance
+*** Remove ui decorations
+#+BEGIN_SRC emacs-lisp
+  (scroll-bar-mode -1)        ; Disable visible scrollbar
+  (tool-bar-mode -1)          ; Disable the toolbar
+  (menu-bar-mode -1)            ; Disable the menu bar
+#+END_SRC
 *** Theme
 #+BEGIN_SRC emacs-lisp
   (load-theme 'doom-solarized-dark t)
@@ -343,7 +345,10 @@ Taken from emacs wiki
   (setq tab-bar-new-button-show nil)
   (setq tab-bar-close-button nil)
 #+END_SRC
-
+*** Don't blink the cursor
+#+BEGIN_SRC emacs-lisp
+(blink-cursor-mode 0)
+#+END_SRC
 ** Ivy
 #+BEGIN_SRC emacs-lisp
   (require-md ivy)
@@ -366,19 +371,27 @@ TODO: keybindings
             (lambda (_) (display-line-numbers-mode 0)))
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
-  (defun ne/neotree-refresh-toggle ()
-    (interactive)
+    (defun ne/neotree-refresh-toggle ()
+      (interactive)
 
-    (if (neo-global--window-exists-p)
-        (neotree-hide)
-      (progn 
-        (neotree-show)
-        (neotree-refresh))))
+      (if (neo-global--window-exists-p)
+          (neotree-hide)
+        (progn 
+          (neotree-show)
+          (neotree-refresh))))
+
+  (defun ne/neotree-show-project ()
+   (interactive)
+   (if (neo-global--window-exists-p)
+          (neotree-hide)
+        (progn 
+          (neotree-dir (projectile-project-root)))))
 #+END_SRC
 
 
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
-  "n" #'ne/neotree-refresh-toggle
+  ;;"n" #'neotree-toggle
+  "n" #'ne/neotree-show-project
 #+END_SRC
 ** which-key
 #+BEGIN_SRC emacs-lisp
@@ -429,6 +442,7 @@ Random packages that are useful in several modes
   "emacs-rainbow-delimiters"
   "emacs-smartparens"
   "emacs-helpful"
+  "emacs-avy"
 #+END_SRC
 ** Prog mode
 *** Smartparens
@@ -490,6 +504,14 @@ Taken from DOOM emacs
   (require-d git-gutter)
   (global-git-gutter-mode +1)
 #+END_SRC
+*** Avy
+#+BEGIN_SRC emacs-lisp
+  (require 'avy)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp :noweb-ref leader-key
+"m" #'evil-avy-goto-char-2
+#+END_SRC
+
 
 ** Visual Fill column
 #+BEGIN_SRC emacs-lisp
@@ -504,14 +526,16 @@ Taken from DOOM emacs
   "emacs-org-journal"
   "emacs-org-roam"
   "emacs-toc-org"
-#+END_SRC
+  "emacs-org-superstar"
+  #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
   (require 'org)
   (add-hook 'org-mode-hook
             (lambda ()
               (org-indent-mode)
-              (diminish 'org-indent-mode)))
+              (diminish 'org-indent-mode)
+              (ne/visual-center-mode)))
   (add-to-list 'org-agenda-files "~/org/")
 #+END_SRC
 
@@ -529,6 +553,12 @@ TOC
 #+BEGIN_SRC emacs-lisp
   (require 'toc-org)
   (add-hook 'org-mode-hook 'toc-org-mode)
+#+END_SRC
+
+Super star
+#+BEGIN_SRC emacs-lisp
+  (require 'org-superstar)
+  (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
 #+END_SRC
 
 Load babel languages
@@ -780,6 +810,11 @@ TODO: defer loading
   (require 'lua-mode)
 #+END_SRC
  
+*** C/C++
+#+BEGIN_SRC emacs-lisp
+;;(add-hook 'c++-mode-hook #'lsp)
+#+END_SRC
+
 * Evil
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -926,6 +961,7 @@ End hook block
   ))
 #+END_SRC
 ** Leader
+TODO: Just use general instead of bringing in evil-leader
 #+BEGIN_SRC emacs-lisp :noweb yes
   (require 'evil-leader)
   (global-evil-leader-mode)
@@ -938,6 +974,8 @@ End hook block
     "rp" (i-lambda (async-shell-command "guix package -m /home/clone/dotfiles/guix-manifests/emacs.scm -p /home/clone/.guix-extra-profiles/emacs/emacs"))
     "tn" (i-lambda (switch-to-buffer-other-tab "*dashboard*"))
     "tc" #'tab-bar-close-tab
+    "tm" #'tab-bar-move-tab
+    "ts" #'tab-bar-switch-to-tab
     "w" #'surround-sexp
     "c" #'evil-ex-nohighlight
     ",t" #'ne/toggle-transparency
@@ -1003,7 +1041,14 @@ End hook block
   (add-hook 'evil-collection-setup-hook #'my-hjkl-rotation)
   (evil-collection-init)
 #+END_SRC
-** Fixes
+** Mode Keybinds
+*** Prog
+#+BEGIN_SRC emacs-lisp
+  (general-define-key :states 'normal :keymaps 'prog-mode-map
+                      "gr" #'xref-find-references
+                      "gD" #'xref-find-definitions-other-window)
+#+END_SRC
+
 *** Info
 Prevent info mode from overwriting movement
 #+BEGIN_SRC emacs-lisp
@@ -1030,6 +1075,12 @@ Also want "l" to be log instead of ediff ("o")
     "ge" #'magit-section-forward-sibling
     "gi" #'magit-section-backward-sibling)
 #+END_SRC
+*** Man
+#+BEGIN_SRC emacs-lisp
+  (evil-collection-define-key 'normal 'Man-mode-map
+    "k" #'man-follow)
+#+END_SRC
+
 * Global keybinds
 ** Switch tabs
 #+BEGIN_SRC emacs-lisp
@@ -1085,7 +1136,8 @@ Packages that offer a self contained experiance
   (require 'pdf-tools)
   (pdf-loader-install)
   (add-hook 'pdf-view-mode-hook #'pdf-view-midnight-minor-mode)
-  (add-hook 'pdf-view-mode-hook (lambda () (blink-cursor-mode -1)))
+  ;;(add-hook 'pdf-view-mode-hook (lambda () (blink-cursor-mode -1)))
+  (add-hook 'pdf-view-mode-hook (lambda () (internal-show-cursor nil nil)))
 #+END_SRC
 ** Pass
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
@@ -1136,4 +1188,18 @@ Packages that offer a self contained experiance
 ** Tmux
 #+BEGIN_SRC emacs-lisp
   (require 'emamux)
+#+END_SRC
+** Elfeed
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-elfeed"
+  "emacs-elfeed-org"
+  #+END_SRC
+#+BEGIN_SRC emacs-lisp
+    (require 'elfeed)
+    (require 'elfeed-org)
+ #+END_SRC
+ 
+#+BEGIN_SRC emacs-lisp
+  (setq rmh-elfeed-org-files (list "~/dotfiles/elfeed.org"))
 #+END_SRC
