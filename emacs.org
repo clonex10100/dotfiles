@@ -29,6 +29,8 @@ h needs to replace i in text object otherwise I can't cast line up in visual mod
     - Forward/Backward Slurp/Barf
 - Possibly an evil colemak overlay mode instead of messing directly with maps.
 - List of modes with no line numbers instead of adding hooks to remove
+- Better tab plugin
+- Change the behavior of xref popup buffers
 * Initial setup
 *** Guix Manifest
 Build with
@@ -220,6 +222,7 @@ taken from emacs wiki
 ** Relative Line Numbers
 #+BEGIN_SRC emacs-lisp
   (setq display-line-numbers-type 'relative)
+  (setq-default display-line-numbers-width 4)
   (dolist (mode '(prog-mode-hook
                   text-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 1))))
@@ -356,6 +359,9 @@ Taken from emacs wiki
   (setq ivy-use-virtual-buffers t)
   (require-md counsel)
   (setcdr (assq 'counsel-M-x ivy-initial-inputs-alist) "")
+
+  (general-define-key :map 'ivy-mode-map
+                      "C-x b" #'persp-ivy-switch-buffer)
 #+END_SRC
 *** Ivy addons
 **** Ivy rich
@@ -367,30 +373,31 @@ TODO: keybindings
 #+BEGIN_SRC emacs-lisp
   (require 'neotree)
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+  (setq neo-autorefresh nil)
   (add-hook 'neo-after-create-hook
             (lambda (_) (display-line-numbers-mode 0)))
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
-    (defun ne/neotree-refresh-toggle ()
-      (interactive)
+  (defun ne/neotree-refresh-toggle ()
+    (interactive)
+    (if (neo-global--window-exists-p)
+        (neotree-hide)
+      (progn 
+        (neotree-show)
+        (neotree-refresh))))
 
-      (if (neo-global--window-exists-p)
-          (neotree-hide)
-        (progn 
-          (neotree-show)
-          (neotree-refresh))))
-
+  (setq _last_neo_dir nil)
   (defun ne/neotree-show-project ()
-   (interactive)
-   (if (neo-global--window-exists-p)
+    (interactive)
+    (let ((proot (projectile-project-root)))
+      (if (and (neo-global--window-exists-p) (string= _last_neo_dir proot))
           (neotree-hide)
         (progn 
-          (neotree-dir (projectile-project-root)))))
+          (setq _last_neo_dir proot)
+          (neotree-dir proot)))))
 #+END_SRC
 
-
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
-  ;;"n" #'neotree-toggle
   "n" #'ne/neotree-show-project
 #+END_SRC
 ** which-key
@@ -443,6 +450,8 @@ Random packages that are useful in several modes
   "emacs-smartparens"
   "emacs-helpful"
   "emacs-avy"
+
+  "emacs-perspective"
 #+END_SRC
 ** Prog mode
 *** Smartparens
@@ -512,13 +521,32 @@ Taken from DOOM emacs
 "m" #'evil-avy-goto-char-2
 #+END_SRC
 
-
 ** Visual Fill column
 #+BEGIN_SRC emacs-lisp
   (require 'visual-fill-column)
   (setq visual-fill-column-width 150)
   (setq visual-fill-column-center-text t)
 #+END_SRC
+
+** Perspectives
+#+BEGIN_SRC emacs-lisp
+  (require 'perspective)
+  (diminish 'persp-mode)
+  (persp-mode)
+#+END_SRC
+
+Share some buffers across all perspectives
+#+BEGIN_SRC emacs-lisp
+  (setq persp-shared-buffs '("*Messages*" "*Backtrace*" "emacs.org" "*dashboard*"))
+  (add-hook 'persp-switch-hook
+            (lambda ()
+              (dolist (buff persp-shared-buffs) 
+                (persp-add-buffer buff))))
+  (add-hook 'persp-created-hook
+            (lambda () (switch-to-buffer "*dashboard*")))
+#+END_SRC
+
+
 * Org
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -559,7 +587,8 @@ Super star
 #+BEGIN_SRC emacs-lisp
   (require 'org-superstar)
   (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
-#+END_SRC
+  (setq org-superstar-leading-bullet " ")
+  #+END_SRC
 
 Load babel languages
 #+BEGIN_SRC emacs-lisp
@@ -608,7 +637,7 @@ Load babel languages
 *** flycheck
 #+begin_src emacs-lisp
   (require 'flycheck)
-  (global-flycheck-mode)
+  ;;(global-flycheck-mode)
   (diminish 'flycheck-mode)
 
   (require 'flycheck-guile)
@@ -717,7 +746,7 @@ TODO: defer loading
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
   (autoload 'rust-mode "rust-mode" nil t)
-
+  (add-hook 'rust-mode-hook #'lsp)
 #+END_SRC
 
 *** Shell
@@ -812,7 +841,7 @@ TODO: defer loading
  
 *** C/C++
 #+BEGIN_SRC emacs-lisp
-;;(add-hook 'c++-mode-hook #'lsp)
+  ;;(add-hook 'c++-mode-hook #'lsp)
 #+END_SRC
 
 * Evil
@@ -1042,13 +1071,6 @@ TODO: Just use general instead of bringing in evil-leader
   (evil-collection-init)
 #+END_SRC
 ** Mode Keybinds
-*** Prog
-#+BEGIN_SRC emacs-lisp
-  (general-define-key :states 'normal :keymaps 'prog-mode-map
-                      "gr" #'xref-find-references
-                      "gD" #'xref-find-definitions-other-window)
-#+END_SRC
-
 *** Info
 Prevent info mode from overwriting movement
 #+BEGIN_SRC emacs-lisp
@@ -1081,6 +1103,20 @@ Also want "l" to be log instead of ediff ("o")
     "k" #'man-follow)
 #+END_SRC
 
+*** Langs
+**** Tide
+#+BEGIN_SRC emacs-lisp
+  (general-define-key  :states 'normal :maps 'tide-mode-map
+                      "C-o" #'tide-jump-back
+                      "gr" #'tide-references)
+#+END_SRC
+
+**** C
+#+BEGIN_SRC emacs-lisp
+  (general-define-key :states 'normal :keymaps 'c-mode-map
+                      "gr" #'xref-find-references
+                      "gD" #'xref-find-definitions-other-window)
+#+END_SRC
 * Global keybinds
 ** Switch tabs
 #+BEGIN_SRC emacs-lisp
@@ -1137,7 +1173,7 @@ Packages that offer a self contained experiance
   (pdf-loader-install)
   (add-hook 'pdf-view-mode-hook #'pdf-view-midnight-minor-mode)
   ;;(add-hook 'pdf-view-mode-hook (lambda () (blink-cursor-mode -1)))
-  (add-hook 'pdf-view-mode-hook (lambda () (internal-show-cursor nil nil)))
+  ;;(add-hook 'pdf-view-mode-hook (lambda () (internal-show-cursor nil nil)))
 #+END_SRC
 ** Pass
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
@@ -1148,7 +1184,7 @@ Packages that offer a self contained experiance
 ** Mpc
 #+BEGIN_SRC emacs-lisp
   (general-define-key :states 'normal :keymaps 'mpc-mode-map
-                      "a" #'mpc-select-toggle
+                      "RET" #'mpc-select-toggle
                       "q" #'mpc-quit
                       "p" #'mpc-toggle-play
                       "k" #'mpc-play-at-point)
@@ -1194,12 +1230,24 @@ Packages that offer a self contained experiance
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-elfeed"
   "emacs-elfeed-org"
-  #+END_SRC
+#+END_SRC
 #+BEGIN_SRC emacs-lisp
-    (require 'elfeed)
-    (require 'elfeed-org)
- #+END_SRC
+  (require 'elfeed)
+  (require 'elfeed-org)
+#+END_SRC
  
 #+BEGIN_SRC emacs-lisp
+(add-hook 'elfeed-search-mode-hook #'ne/visual-center-mode)
+(add-hook 'elfeed-show-mode-hook #'ne/visual-center-mode)
   (setq rmh-elfeed-org-files (list "~/dotfiles/elfeed.org"))
 #+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (custom-set-variables
+   '(elfeed-feeds
+     '("http://feeds.arstechnica.com/arstechnica/index"
+       "https://graymirror.substack.com/feed"
+       "https://karthinks.com/index.xml" "https://ambrevar.xyz/atom.xml"
+       "https://www.youtube.com/channel/UCAiiOTio8Yu69c3XnR7nQBQ")))
+#+END_SRC
+
