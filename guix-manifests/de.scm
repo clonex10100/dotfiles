@@ -48,7 +48,7 @@
    "rtorrent-ps"
    "ncmpcpp"
    "ranger"
-   "syncthing"
+   ;; "syncthing"
 
    ;; Gui
    "mpv"
@@ -60,4 +60,5 @@
    "sxiv-clone"
    "thunar"
    "font-awesome"
-   "syncthing-gtk"))
+   ;;"syncthing-gtk"
+   ))

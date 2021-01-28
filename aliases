@@ -8,10 +8,13 @@ alias ls='ls --color=auto'
 alias f="ls -lah | grep -i "
 alias sizes="du -shc * | sort -h"
 alias clip="xclip -selection clipboard"
+alias kkill="kill -KILL"
 
 #Editing aliases
 alias v="nvim"
 alias e="sudo -e"
+alias edv="EDITOR=nvim"
+
 
 #Program aliases
 alias mpvss="mpv --deband=no --screenshot-format=png"
@@ -28,7 +31,8 @@ alias polylaunch="~/.config/polybar/launch.sh"
 alias autobuild="./autogen.sh && ./configure.sh && make && make check"
 
 #Pyroscope
-alias rtimportd="rtcontrol --from-view complete 'realpath=*/anime/*,*/TV/*' 'tagged=!imported' -q -o 'cp -rl \"\$(path)s\" /data2/jellyfin/imports/ && chmod 777 -R \"/data2/jellyfin/imports/\$(path.pathbase)s\" && sonarrImport \"\$(path.pathbase)s\"'"
+alias rtimportd="rtcontrol --from-view complete 'realpath=*/anime/*,*/TV/*' 'tagged=!imported' --tag '+imported' -q -o 'cp -rl \"\$(path)s\" /data2/jellyfin/imports/ && chmod 777 -R \"/data2/jellyfin/imports/\$(path.pathbase)s\"'" # && sonarrImport \"\$(path.pathbase)s\"'"
+alias rtimport="rtcontrol --from-view complete 'tagged=import' --tag '-import' -q -o 'cp -rl \"\$(path)s\" /data2/jellyfin/imports/ && chmod 777 -R \"/data2/jellyfin/imports/\$(path.pathbase)s\"'"
 #alias rtimportd="rtcontrol --from-view complete 'realpath=*/anime/*,*/TV/*' 'tagged=!imported' -q -o 'cp -rl \"\$(path)s\" /data2/jellyfin/imports/ && chmod 777 -R \"/data2/jellyfin/imports/\$(path.pathbase)s\" '"
 #alias rtimport="rtimportd --tag '+imported' | bash"
 alias rttagc="rtcontrol --from-view tagged 'name=*' --tag '-imported'"
@@ -184,6 +188,7 @@ aur(){
     fi
     git clone $git
     cd "${dir}"
+    nvim PKGBUILD
     makepkg -si
 }
 

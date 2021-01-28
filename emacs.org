@@ -64,6 +64,11 @@ Marking guile blocks as lisp instead of scheme so geiser will shutup.
 #+BEGIN_SRC emacs-lisp
   (define-key input-decode-map [?\C-i] [C-i])
 #+END_SRC
+*** Start the emacs server
+#+BEGIN_SRC emacs-lisp
+  (server-start)
+#+END_SRC
+
 *** Core Packages
 Packages needed for this config
 *Guix Packages*
@@ -149,27 +154,73 @@ taken from emacs wiki
         (setq visual-fill-column-center-text t)
         (visual-fill-column-mode 1))))
 #+END_SRC
-**** Calculate guix git hash
-- TODO: Make it replace the hash instead of putting in killring
+**** Guix channel automation
 - TODO: Make it work for non-git sources
 #+BEGIN_SRC emacs-lisp
-  (defun ne/guix-git-hash ()
-    (interactive)
-    (let* ((sexp (sexp-at-point))
-           (url (cadr (assoc 'url sexp)))
-           (commit (cadr (assoc 'commit sexp)))
-           (odir (cadr (split-string (pwd))))
+  (defun ne/sexp-pair-regex (name)
+    (concat "(" name "[[:space:]\n\r]*\"\\(.*\\)\")"))
+
+  (defun ne/git-hash (url commit)
+    (let* ((odir (cadr (split-string (pwd))))
            (dir (file-name-sans-extension (car (last (split-string url "/"))))))
-      (message dir)
-      (cd "/tmp")
       (delete-directory dir t)
       (shell-command (concat "git clone " url))
       (cd dir)
       (shell-command (concat "git checkout -q " commit))
-      (kill-new (string-trim-right (shell-command-to-string "guix hash -rx .")))
-      (cd odir)))
-#+END_SRC
+      (prog1
+          (string-trim-right (shell-command-to-string "guix hash -rx ."))
+        (delete-directory dir t)
+        (cd odir))))
 
+  (defun ne/guix-hash-at-point ()
+    (interactive)
+    (save-excursion
+      (save-match-data
+        (narrow-to-defun)
+        (goto-char (point-min))
+        (re-search-forward (sexp-pair-regex "url"))
+        (let ((url (match-string 1)))
+          (re-search-forward (sexp-pair-regex "commit"))
+          (let* ((commit (match-string 1))
+                 (hash (ne/git-hash url commit)))
+            (re-search-forward (sexp-pair-regex "base32"))
+            (replace-match hash t nil nil 1)))
+        (widen))))
+
+  (defun ne/guix-bump-at-point (commit)
+    (interactive "sCommit: ")
+    (save-excursion
+      (save-match-data
+        (narrow-to-defun)
+        (goto-char (point-min))
+
+        (re-search-forward (sexp-pair-regex "version"))
+        (re-search-backward "\\.\\(.*\\)\"")
+        (let ((new-version (number-to-string (1+ (string-to-number (match-string 1))))))
+          (replace-match new-version t nil nil 1))
+
+        (re-search-forward (sexp-pair-regex "commit"))
+        (replace-match commit t nil nil 1)
+
+        (ne/guix-hash-at-point)
+        (widen))))
+
+  (defun ne/guix-bump-current-project ()
+    (interactive)
+    (let ((name (projectile-project-name))
+          (commit (replace-regexp-in-string "\n\\'" "" 
+                                            (shell-command-to-string "git rev-parse HEAD"))))
+      (shell-command "git rev-parse HEAD")
+      (with-current-buffer (find-file "/home/clone/projects/guix-channel/clone.scm")
+        (save-excursion
+          (goto-char (point-min))
+          (search-forward (concat "define-public " name))
+          (message "bCommit: %s" commit)
+          (ne/guix-bump-at-point commit)
+          (save-buffer)
+          (magit-stage-file (magit-file-relative-name))
+          (magit-commit-create (list (concat "-m Bumped " name)))))))
+#+END_SRC
 ** Kmacros
 #+BEGIN_SRC emacs-lisp
   (fset 'quote-word
@@ -350,7 +401,7 @@ Taken from emacs wiki
 #+END_SRC
 *** Don't blink the cursor
 #+BEGIN_SRC emacs-lisp
-(blink-cursor-mode 0)
+  (blink-cursor-mode 0)
 #+END_SRC
 ** Ivy
 #+BEGIN_SRC emacs-lisp
@@ -518,7 +569,7 @@ Taken from DOOM emacs
   (require 'avy)
 #+END_SRC
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
-"m" #'evil-avy-goto-char-2
+  "m" #'evil-avy-goto-char-2
 #+END_SRC
 
 ** Visual Fill column
@@ -542,11 +593,10 @@ Share some buffers across all perspectives
             (lambda ()
               (dolist (buff persp-shared-buffs) 
                 (persp-add-buffer buff))))
+
   (add-hook 'persp-created-hook
             (lambda () (switch-to-buffer "*dashboard*")))
 #+END_SRC
-
-
 * Org
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -555,7 +605,7 @@ Share some buffers across all perspectives
   "emacs-org-roam"
   "emacs-toc-org"
   "emacs-org-superstar"
-  #+END_SRC
+#+END_SRC
 
 #+BEGIN_SRC emacs-lisp
   (require 'org)
@@ -588,7 +638,7 @@ Super star
   (require 'org-superstar)
   (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
   (setq org-superstar-leading-bullet " ")
-  #+END_SRC
+#+END_SRC
 
 Load babel languages
 #+BEGIN_SRC emacs-lisp
@@ -628,9 +678,11 @@ Load babel languages
   "emacs-lsp-ui"
   "emacs-lsp-ivy"
 #+end_src
-*** company
+*** Company
 *packages*
 #+begin_src emacs-lisp
+
+  (setq company-idle-delay 0.0)
   (require-md company)
   (add-hook 'after-init-hook 'global-company-mode)
 #+end_src
@@ -1107,8 +1159,8 @@ Also want "l" to be log instead of ediff ("o")
 **** Tide
 #+BEGIN_SRC emacs-lisp
   (general-define-key  :states 'normal :maps 'tide-mode-map
-                      "C-o" #'tide-jump-back
-                      "gr" #'tide-references)
+                       "C-o" #'tide-jump-back
+                       "gr" #'tide-references)
 #+END_SRC
 
 **** C
@@ -1237,8 +1289,8 @@ Packages that offer a self contained experiance
 #+END_SRC
  
 #+BEGIN_SRC emacs-lisp
-(add-hook 'elfeed-search-mode-hook #'ne/visual-center-mode)
-(add-hook 'elfeed-show-mode-hook #'ne/visual-center-mode)
+  (add-hook 'elfeed-search-mode-hook #'ne/visual-center-mode)
+  (add-hook 'elfeed-show-mode-hook #'ne/visual-center-mode)
   (setq rmh-elfeed-org-files (list "~/dotfiles/elfeed.org"))
 #+END_SRC
 

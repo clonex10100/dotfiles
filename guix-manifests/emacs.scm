@@ -39,6 +39,8 @@
    "emacs-smartparens"
    "emacs-helpful"
    "emacs-avy"
+   
+   "emacs-perspective"
    "emacs-git-gutter"
    "emacs-org"
    "emacs-org-journal"
