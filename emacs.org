@@ -17,20 +17,20 @@ h needs to replace i in text object otherwise I can't cast line up in visual mod
 - More snipets
 - More org mode
 - More language support
-  - [X] Web
   - [ ] Ruby
   - [ ] C
 - Special bindings for modes:
-  - [ ] Magit
   - [ ] Dired
   - [ ] Flychecker
 - General keybinds
   - Smartparens
     - Forward/Backward Slurp/Barf
 - Possibly an evil colemak overlay mode instead of messing directly with maps.
-- List of modes with no line numbers instead of adding hooks to remove
-- Better tab plugin
-- Change the behavior of xref popup buffers
+- Change the behavior of reference popup buffers.
+- Make =C-i= jump forward, switch =C-w= dir keybinds to colemak.
+- One button maps for frequently used emacs keybinds.
+  - =M-x=
+  - =C-x b=
 * Initial setup
 *** Guix Manifest
 Build with
@@ -46,6 +46,8 @@ Marking guile blocks as lisp instead of scheme so geiser will shutup.
      "libcanberra"
      "freetype"
      "fontconfig"
+     "emacs-aio"
+     "emacs-request"
      <<packages>>
      ))
      #+END_SRC
@@ -179,6 +181,7 @@ taken from emacs wiki
         (narrow-to-defun)
         (goto-char (point-min))
         (re-search-forward (sexp-pair-regex "url"))
+        (goto-char (point-min))
         (let ((url (match-string 1)))
           (re-search-forward (sexp-pair-regex "commit"))
           (let* ((commit (match-string 1))
@@ -1156,13 +1159,6 @@ Also want "l" to be log instead of ediff ("o")
 #+END_SRC
 
 *** Langs
-**** Tide
-#+BEGIN_SRC emacs-lisp
-  (general-define-key  :states 'normal :maps 'tide-mode-map
-                       "C-o" #'tide-jump-back
-                       "gr" #'tide-references)
-#+END_SRC
-
 **** C
 #+BEGIN_SRC emacs-lisp
   (general-define-key :states 'normal :keymaps 'c-mode-map

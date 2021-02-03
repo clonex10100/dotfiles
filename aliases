@@ -162,17 +162,17 @@ crk86(){
     cp /home/clone/gamesFucking/goldlinux/x86/libsteam_api.so ./
 }
 
-wallpaper(){
-    rm ~/Pictures/wallpapers/wallpaper
-    P="/home/clone/Pictures/wallpapers/$(basename $1)"
-    if [[ ! -f $P ]]; then
-        echo $P
-        cp $1 ~/Pictures/wallpapers/
-    fi
-
-    ln -s $P ~/Pictures/wallpapers/wallpaper
-    feh --bg-scale ~/Pictures/wallpapers/wallpaper
-}
+# wallpaper(){
+    # rm ~/Pictures/wallpapers/wallpaper
+    # P="/home/clone/Pictures/wallpapers/$(basename $1)"
+    # if [[ ! -f $P ]]; then
+        # echo $P
+        # cp $1 ~/Pictures/wallpapers/
+    # fi
+ 
+    # ln -s $P ~/Pictures/wallpapers/wallpaper
+    # feh --bg-scale ~/Pictures/wallpapers/wallpaper
+# }
 
 mp(){
     mpv $1 &> /dev/null &

@@ -4,6 +4,8 @@
    "libcanberra"
    "freetype"
    "fontconfig"
+   "emacs-aio"
+   "emacs-request"
    "emacs-general"
    "emacs-diminish"
    "emacs-exwm"
