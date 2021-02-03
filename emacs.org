@@ -19,6 +19,7 @@ h needs to replace i in text object otherwise I can't cast line up in visual mod
 - More language support
   - [ ] Ruby
   - [ ] C
+  - [ ] switch from tide to lsp
 - Special bindings for modes:
   - [ ] Dired
   - [ ] Flychecker
@@ -757,6 +758,21 @@ Bind projectile commands to leader p
 
   (require 'lsp-ivy)
 #+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (general-define-key :states 'normal :keymaps 'lsp-ui-mode-map
+                      "gh" #'lsp-ui-doc-glance
+                      "gd" #'lsp-ui-peek-find-definitions
+                      "gr" #'lsp-ui-peek-find-references)
+
+  (general-define-key :keymaps 'lsp-ui-peek-mode-map
+                      "n" #'lsp-ui-peek--select-prev-file
+                      "e" #'lsp-ui-peek--select-next
+                      "i" #'lsp-ui-peek--select-prev
+                      "o" #'lsp-ui-peek--select-next-file
+                      "k" #'lsp-ui-peek--goto-xref
+                      "K" #'lsp-ui-peek--goto-xref-other-window)
+#+END_SRC
 ** Langs
 TODO: defer loading
 *** Lisp
@@ -945,7 +961,9 @@ Maybe this should be and evil-colemak layer
                       "e" #'evil-next-line
                       "i" #'evil-previous-line
                       "o" #'evil-forward-char
-                      "O" #'evil-window-bottom)
+                      "O" #'evil-window-bottom
+                      "TAB" nil
+                      "<C-i>" #'evil-jump-forward)
 
   (general-define-key :states 'normal
                       "E" #'evil-join
@@ -963,30 +981,59 @@ Maybe this should be and evil-colemak layer
   (general-define-key :states '(visual operator)
                       "h" evil-inner-text-objects-map)
 
-  (general-define-key :states '(normal insert)
-                      :keymaps 'override
-                      "<C-i> C-n" #'evil-window-left
-                      "<C-i> n" #'evil-window-left
-                      "<C-i> C-e" #'evil-window-down
-                      "<C-i> e" #'evil-window-down
-                      "<C-i> <C-i>" #'evil-window-up
-                      "<C-i> i" #'evil-window-up
-                      "<C-i> C-o" #'evil-window-right
-                      "<C-i> o" #'evil-window-right)
   (general-define-key :states 'normal
                       :keymaps 'override
                       "gt" #'tab-bar-switch-to-next-tab
                       "gT" #'tab-bar-switch-to-prev-tab)
-  (general-define-key :keymaps 'override
-                      "<C-i> C-n" #'evil-window-left
-                      "<C-i> n" #'evil-window-left
-                      "<C-i> C-e" #'evil-window-down
-                      "<C-i> e" #'evil-window-down
-                      "<C-i> <C-i>" #'evil-window-up
-                      "<C-i> i" #'evil-window-up
-                      "<C-i> C-o" #'evil-window-right
-                      "<C-i> o" #'evil-window-right)
+
 #+END_SRC
+**** Window
+#+BEGIN_SRC emacs-lisp
+  (evil-collection-translate-key nil 'evil-window-map
+    "n" "h"
+    "e" "j"
+    "i" "k"
+    "o" "l"
+
+    "h" "i"
+    "j" "n"
+    "k" "o"
+    "l" "e"
+
+    "N" "H"
+    "E" "J"
+    "I" "K"
+    "O" "L"
+
+    "H" "I"
+    "J" "N"
+    "K" "O"
+    "L" "E")
+#+END_SRC
+****** Old
+#+BEGIN_SRC emacs-lisp
+  ;; (general-define-key :states '(normal insert)
+  ;;                     :keymaps 'override
+  ;;                     "<C-i> C-n" #'evil-window-left
+  ;;                     "<C-i> n" #'evil-window-left
+  ;;                     "<C-i> C-e" #'evil-window-down
+  ;;                     "<C-i> e" #'evil-window-down
+  ;;                     "<C-i> <C-i>" #'evil-window-up
+  ;;                     "<C-i> i" #'evil-window-up
+  ;;                     "<C-i> C-o" #'evil-window-right
+  ;;                     "<C-i> o" #'evil-window-right)
+  ;; (general-define-key :keymaps 'override
+  ;;                     "<C-i> C-n" #'evil-window-left
+  ;;                     "<C-i> n" #'evil-window-left
+  ;;                     "<C-i> C-e" #'evil-window-down
+  ;;                     "<C-i> e" #'evil-window-down
+  ;;                     "<C-i> <C-i>" #'evil-window-up
+  ;;                     "<C-i> i" #'evil-window-up
+  ;;                     "<C-i> C-o" #'evil-window-right
+  ;;                     "<C-i> o" #'evil-window-right)
+#+END_SRC
+
+
 ** Org
 The keys must be defined in the hook or they will be overwritten by evil-mode. "gi" must be defined because evil mode was overwriting the motion.
 Text objects are defined from scratch instead of setting them in the theme because I need to move from i to h.
@@ -1165,6 +1212,12 @@ Also want "l" to be log instead of ediff ("o")
                       "gr" #'xref-find-references
                       "gD" #'xref-find-definitions-other-window)
 #+END_SRC
+**** Elisp
+#+BEGIN_SRC emacs-lisp
+  (general-define-key :modes 'normal :keymaps 'emacs-lisp-mode-map
+                      "C-c C-j" #'imenu)
+#+END_SRC
+
 * Global keybinds
 ** Switch tabs
 #+BEGIN_SRC emacs-lisp
@@ -1298,4 +1351,9 @@ Packages that offer a self contained experiance
        "https://karthinks.com/index.xml" "https://ambrevar.xyz/atom.xml"
        "https://www.youtube.com/channel/UCAiiOTio8Yu69c3XnR7nQBQ")))
 #+END_SRC
+** Info
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'Info-mode-hook #'ne/visual-center-mode)
+#+END_SRC
+
 
