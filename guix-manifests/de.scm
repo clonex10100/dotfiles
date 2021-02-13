@@ -60,5 +60,6 @@
    "sxiv-clone"
    "thunar"
    "font-awesome"
+   "font-symbola"
    ;;"syncthing-gtk"
    ))
