@@ -232,13 +232,6 @@ taken from emacs wiki
           (magit-stage-file (magit-file-relative-name))
           (magit-commit-create (list (concat "-m Bumped " name)))))))
 #+END_SRC
-** Kmacros
-#+BEGIN_SRC emacs-lisp
-  (fset 'quote-word
-        (kmacro-lambda-form [?y ?s ?h ?w ?\"] 0 "%d"))
-  (fset 'surround-sexp
-        (kmacro-lambda-form [?y ?s ?a ?\) ?\)] 0 "%d"))
-#+END_SRC
 ** Variables
 *** Solarized colors
 #+BEGIN_SRC emacs-lisp
