@@ -16,22 +16,19 @@ h needs to replace i in text object otherwise I can't cast line up in visual mod
 ** Todo
 - More snipets
 - More org mode
-- More language support
-  - [ ] Ruby
-  - [ ] C
-  - [ ] switch from tide to lsp
-- Special bindings for modes:
-  - [ ] Dired
-  - [ ] Flychecker
-- General keybinds
-  - Smartparens
-    - Forward/Backward Slurp/Barf
-- Possibly an evil colemak overlay mode instead of messing directly with maps.
 - Change the behavior of reference popup buffers.
-- Make =C-i= jump forward, switch =C-w= dir keybinds to colemak.
-- One button maps for frequently used emacs keybinds.
-  - =M-x=
+*** Keybinding
+- Get rid of =evil-leader= keybinds
+- Better app keybinds strategy
+**** Need to add
+- [ ] Dired
+- [ ] Flychecker
+- [ ] Smartparens
+  - Forward/Backward Slurp/Barf
+- [ ] Neotree
+- [ ] More convenient maps for frequently used commands
   - =C-x b=
+  - Persp
 * Initial setup
 *** Guix Manifest
 Build with
@@ -334,37 +331,37 @@ Lock files confuse npm start
   (setq create-lockfiles nil)
 #+END_SRC
 * UI
+** All the icons
+Needed for doom-modeline and dashboard
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-all-the-icons"
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (require 'all-the-icons)
+#+END_SRC
+** Theme
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-doom-themes"
-  "emacs-auth-source-pass"
-
-  "emacs-powerline"
-  "emacs-airline-themes" ;; Not in guix yet
-
-  "emacs-all-the-icons"
 #+END_SRC
-** Apperance
-*** Remove ui decorations
-#+BEGIN_SRC emacs-lisp
-  (scroll-bar-mode -1)        ; Disable visible scrollbar
-  (tool-bar-mode -1)          ; Disable the toolbar
-  (menu-bar-mode -1)            ; Disable the menu bar
-#+END_SRC
-*** Theme
+
 #+BEGIN_SRC emacs-lisp
   (load-theme 'doom-solarized-dark t)
 #+END_SRC
-*** Font
+** Font
 #+BEGIN_SRC emacs-lisp
   (setq frame-inhibit-implied-resize t)
   (set-face-attribute 'default nil :font "Fira Code" :height 90)
 #+END_SRC
-*** All the icons
-#+BEGIN_SRC emacs-lisp
-  (require 'all-the-icons)
+** Modeline
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-powerline"
+  "emacs-airline-themes"
 #+END_SRC
-*** Modeline
+
 #+BEGIN_SRC emacs-lisp
   (require 'powerline)
   (powerline-vim-theme)
@@ -375,6 +372,12 @@ Lock files confuse npm start
 
 #+END_SRC
 ** Tweaks
+*** Remove ui decorations
+#+BEGIN_SRC emacs-lisp
+  (scroll-bar-mode -1)        ; Disable visible scrollbar
+  (tool-bar-mode -1)          ; Disable the toolbar
+  (menu-bar-mode -1)            ; Disable the menu bar
+#+END_SRC
 *** Inhibit startup
 #+BEGIN_SRC emacs-lisp
   (setq inhibit-startup-message t)
@@ -407,22 +410,16 @@ Taken from emacs wiki
 #+END_SRC
 * Evil
 *Guix Packages*
-#+BEGIN_SRC lisp :noweb-ref packages
-  "emacs-evil"
-  "emacs-evil-goggles"
-  "emacs-evil-smartparens"
-  "emacs-evil-collection"
-  "emacs-evil-surround"
-  "emacs-evil-leader"
-  "emacs-evil-escape"
-#+END_SRC
 Don't enable evil in these modes
 #+BEGIN_SRC emacs-lisp
-  (setq evil-disabled-modes '());;'(vterm eshell))
+  (setq evil-disabled-modes '())
 #+END_SRC
 ** Evil
-*** Package
-TODO: Orgaize keymap
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-evil"
+#+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
@@ -521,12 +518,22 @@ Maybe this should be and evil-colemak layer
   ;;                     "<C-i> o" #'evil-window-right)
 #+END_SRC
 ** Goggles
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-evil-goggles"
+#+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   (require 'evil-goggles)
   (csetq evil-goggles-enable-delete nil)
   (evil-goggles-mode)
 #+END_SRC
 ** Leader
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-evil-leader"
+#+END_SRC
+
 TODO: Just use general instead of bringing in evil-leader
 #+BEGIN_SRC emacs-lisp :noweb yes
   (require 'evil-leader)
@@ -550,12 +557,31 @@ TODO: Just use general instead of bringing in evil-leader
     "av" #'vterm
     <<leader-key>>)
 #+END_SRC
+** Surround
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-evil-surround"
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (global-evil-surround-mode)
+#+END_SRC
 ** Escape
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-evil-escape"
+#+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   (require-md evil-escape)
   (global-set-key (kbd "<escape>") 'evil-escape)
 #+END_SRC
 ** Collection
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-evil-collection"
+#+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   (require 'evil-collection)
 
@@ -613,6 +639,7 @@ Prog mode enhancements
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-smartparens"
+  "emacs-evil-smartparens"
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -690,6 +717,12 @@ Taken from DOOM emacs
 #+END_SRC
 * General Packages
 Random packages that are useful in several modes.
+** Auth Source Pass
+I have no idea why this is here
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-auth-source-pass"
+#+END_SRC
 ** Ivy
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -1047,46 +1080,6 @@ Bind projectile commands to leader p
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
   "p" 'projectile-command-map
 #+END_SRC
-*** Magit
-*Guix Packages*
-#+BEGIN_SRC lisp :noweb-ref packages
-  "emacs-magit"
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (require 'magit)
-
-  ;; (general-define-key :keymaps 'magit-mode-map
-  ;;                     "e" #'magit-section-forward
-  ;;                     "i" #'magit-section-backward
-  ;;                     "n" #'magit-ediff-dwim
-  ;;                     "p" #'magit-gitignore)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp :noweb-ref leader-key
-  "am" #'magit-status
-#+END_SRC
-**** Keybinds
-Translate-key doesn't work on magit
-Also want "l" to be log instead of ediff ("o")
-#+BEGIN_SRC emacs-lisp
-  (evil-collection-define-key 'normal 'magit-status-mode-map
-    "n" #'magit-dispatch
-    "e" #'magit-section-forward
-    "i" #'magit-section-backward
-    "o" #'magit-ediff-dwim
-
-    "h" #'magit-gitignore
-    "k" #'magit-reset-quickly
-    "e" #'magit-section-forward
-    "j" #'evil-search-next
-
-    "gj" #'magit-jump-to-untracked
-
-    "gn" #'magit-section-up
-    "ge" #'magit-section-forward-sibling
-    "gi" #'magit-section-backward-sibling)
-#+END_SRC
 *** LSP
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -1158,6 +1151,7 @@ Also want "l" to be log instead of ediff ("o")
 ** Langs
 TODO: defer loading
 *** Lisp
+**** General
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-eros"
@@ -1193,6 +1187,11 @@ TODO: defer loading
     (add-to-list 'geiser-guile-load-path "~/.guix-profile/share/guile/site/3.0/")
     (add-to-list 'geiser-guile-load-path "~/builds/guix"))
 
+#+END_SRC
+**** Elisp
+#+BEGIN_SRC emacs-lisp
+  (general-define-key :modes 'normal :keymaps 'emacs-lisp-mode-map
+                      "C-c C-j" #'imenu)
 #+END_SRC
 *** Python
 *Guix Packages*
@@ -1288,6 +1287,12 @@ TODO: defer loading
 #+BEGIN_SRC emacs-lisp
   ;;(add-hook 'c++-mode-hook #'lsp)
 #+END_SRC
+**** Keybinds
+#+BEGIN_SRC emacs-lisp
+  (general-define-key :states 'normal :keymaps 'c-mode-map
+                      "gr" #'xref-find-references
+                      "gD" #'xref-find-definitions-other-window)
+#+END_SRC
 *** Haskell
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -1298,30 +1303,16 @@ TODO: defer loading
 #+BEGIN_SRC emacs-lisp
   (require 'haskell-mode)
 #+END_SRC
-* Keybinds
+* Misc Keybinds
 ** Info
 Prevent info mode from overwriting movement
 #+BEGIN_SRC emacs-lisp
   (general-define-key :keymaps 'Info-mode-map "e" nil "i" nil)
 #+END_SRC
-** Magit
 ** Man
 #+BEGIN_SRC emacs-lisp
   (evil-collection-define-key 'normal 'Man-mode-map
     "k" #'man-follow)
-#+END_SRC
-
-** Langs
-*** C
-#+BEGIN_SRC emacs-lisp
-  (general-define-key :states 'normal :keymaps 'c-mode-map
-                      "gr" #'xref-find-references
-                      "gD" #'xref-find-definitions-other-window)
-#+END_SRC
-*** Elisp
-#+BEGIN_SRC emacs-lisp
-  (general-define-key :modes 'normal :keymaps 'emacs-lisp-mode-map
-                      "C-c C-j" #'imenu)
 #+END_SRC
 ** Global
 *** Switch tabs
@@ -1331,6 +1322,40 @@ Prevent info mode from overwriting movement
 #+END_SRC
 * Programs
 Packages that offer a self contained experiance
+** Magit
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-magit"
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (require 'magit)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :noweb-ref leader-key
+  "am" #'magit-status
+#+END_SRC
+*** Keybinds
+Translate-key doesn't work on magit
+Also want "l" to be log instead of ediff ("o")
+#+BEGIN_SRC emacs-lisp
+  (evil-collection-define-key 'normal 'magit-status-mode-map
+    "n" #'magit-dispatch
+    "e" #'magit-section-forward
+    "i" #'magit-section-backward
+    "o" #'magit-ediff-dwim
+
+    "h" #'magit-gitignore
+    "k" #'magit-reset-quickly
+    "e" #'magit-section-forward
+    "j" #'evil-search-next
+
+    "gj" #'magit-jump-to-untracked
+
+    "gn" #'magit-section-up
+    "ge" #'magit-section-forward-sibling
+    "gi" #'magit-section-backward-sibling)
+#+END_SRC
 ** Sbbs
 #+BEGIN_SRC emacs-lisp
   (require 'sbbs)
