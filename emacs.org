@@ -6,6 +6,12 @@
   - [[#colemake-strategy][Colemake Strategy]]
   - [[#todo][Todo]]
 - [[#initial-setup][Initial setup]]
+  - [[#guix-manifest][Guix Manifest]]
+  - [[#set-paths][Set paths]]
+  - [[#use-utf-8][Use utf-8]]
+  - [[#make-tab-and-c-i-read-as-seperate-keys][Make tab and C-i read as seperate keys]]
+  - [[#start-the-emacs-server][Start the emacs server]]
+  - [[#core-packages][Core Packages]]
 - [[#functions][Functions]]
   - [[#config-file-macros][Config file macros]]
   - [[#interactvie-functions][Interactvie Functions]]
@@ -123,7 +129,7 @@ h needs to replace i in text object otherwise I can't cast line up in visual mod
   - =C-x b=
   - Persp
 * Initial setup
-*** Guix Manifest
+** Guix Manifest
 Build with
 #+BEGIN_SRC sh
   guix package -m "~/dotfiles/guix-manifests/emacs.scm" -p "~/.guix-extra-profiles/emacs/emacs"
@@ -143,7 +149,7 @@ Marking guile blocks as lisp instead of scheme so geiser will shutup.
      <<packages>>
      ))
 #+END_SRC
-*** Set paths
+** Set paths
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'load-path "~/.vmacs.d/lisp/")
   (let ((default-directory "~/.vmacs.d/lisp/"))
@@ -151,32 +157,32 @@ Marking guile blocks as lisp instead of scheme so geiser will shutup.
 
   (setq org-directory "~/org/")
 #+END_SRC
-*** Use utf-8
+** Use utf-8
 #+BEGIN_SRC emacs-lisp
   (prefer-coding-system 'utf-8-unix)
   (setq coding-system-for-read 'utf-8)
   (setq coding-system-for-write 'utf-8)
 #+END_SRC
-*** Make tab and C-i read as seperate keys
+** Make tab and C-i read as seperate keys
 #+BEGIN_SRC emacs-lisp
   (define-key input-decode-map [?\C-i] [C-i])
 #+END_SRC
-*** Start the emacs server
+** Start the emacs server
 #+BEGIN_SRC emacs-lisp
   (server-start)
 #+END_SRC
-*** Core Packages
+** Core Packages
 Packages needed for this config
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-general"
   "emacs-diminish"
 #+END_SRC
-**** General
+*** General
 #+BEGIN_SRC emacs-lisp
   (require 'general)
 #+END_SRC
-**** Dimnish
+*** Dimnish
 #+BEGIN_SRC emacs-lisp
   (require 'diminish)
 #+END_SRC
