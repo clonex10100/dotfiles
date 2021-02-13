@@ -1,5 +1,98 @@
 #+TITLE: Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ~/.vmacs.d/init.el
+
+* Table of Contents :toc:
+- [[#info][Info]]
+  - [[#colemake-strategy][Colemake Strategy]]
+  - [[#todo][Todo]]
+- [[#initial-setup][Initial setup]]
+- [[#functions][Functions]]
+  - [[#config-file-macros][Config file macros]]
+  - [[#interactvie-functions][Interactvie Functions]]
+  - [[#variables][Variables]]
+- [[#exwm][Exwm]]
+  - [[#keybinds][Keybinds]]
+  - [[#dmenu][Dmenu]]
+- [[#general-config][General Config]]
+  - [[#relative-line-numbers][Relative Line Numbers]]
+  - [[#use-spaces][Use spaces]]
+  - [[#buffer-behavior][Buffer behavior]]
+  - [[#file-hooks][File hooks]]
+  - [[#use-backup-folder][Use backup folder]]
+  - [[#dont-use-lock-files][Don't use lock files]]
+  - [[#global-keybinds][Global Keybinds]]
+- [[#ui][UI]]
+  - [[#theme][Theme]]
+  - [[#font][Font]]
+  - [[#modeline][Modeline]]
+  - [[#tweaks][Tweaks]]
+- [[#evil][Evil]]
+  - [[#evil-1][Evil]]
+  - [[#goggles][Goggles]]
+  - [[#leader][Leader]]
+  - [[#surround][Surround]]
+  - [[#escape][Escape]]
+  - [[#collection][Collection]]
+- [[#prog-mode][Prog mode]]
+  - [[#smartparens][Smartparens]]
+  - [[#paran-matching][Paran matching]]
+  - [[#rainbow-delimiters][Rainbow delimiters]]
+  - [[#rainbow-mode][Rainbow Mode]]
+  - [[#hl-todo][HL todo]]
+  - [[#eldoc][Eldoc]]
+  - [[#git-gutter][Git gutter]]
+- [[#general-packages][General Packages]]
+  - [[#auth-source-pass][Auth Source Pass]]
+  - [[#all-the-icons][All the icons]]
+  - [[#ivy][Ivy]]
+  - [[#neotree][Neotree]]
+  - [[#which-key][which-key]]
+  - [[#avy][Avy]]
+  - [[#visual-fill-column][Visual Fill column]]
+  - [[#perspectives][Perspectives]]
+  - [[#undo-tree][Undo Tree]]
+  - [[#helful][Helful]]
+  - [[#dashboard][Dashboard]]
+- [[#org][Org]]
+  - [[#setup][Setup]]
+  - [[#keybinds-1][Keybinds]]
+  - [[#additions][Additions]]
+- [[#ide][IDE]]
+  - [[#company][Company]]
+  - [[#flycheck][Flycheck]]
+  - [[#yasnippet][Yasnippet]]
+  - [[#projectile][Projectile]]
+  - [[#lsp][LSP]]
+- [[#langs][Langs]]
+  - [[#lisp][Lisp]]
+  - [[#python][Python]]
+  - [[#rust][Rust]]
+  - [[#shell][Shell]]
+  - [[#hoon][Hoon]]
+  - [[#web][Web]]
+  - [[#javascript][Javascript]]
+  - [[#lua][Lua]]
+  - [[#cc][C/C++]]
+  - [[#haskell][Haskell]]
+- [[#programs][Programs]]
+  - [[#man][Man]]
+  - [[#info-1][Info]]
+  - [[#magit][Magit]]
+  - [[#sbbs][Sbbs]]
+  - [[#keepass][Keepass]]
+  - [[#pdf-tools][Pdf tools]]
+  - [[#pass][Pass]]
+  - [[#mpc][Mpc]]
+  - [[#guix][Guix]]
+  - [[#weechat][Weechat]]
+  - [[#tmux][Tmux]]
+  - [[#elfeed][Elfeed]]
+  - [[#eshell][Eshell]]
+  - [[#vterm][Vterm]]
+  - [[#mentor][Mentor]]
+  - [[#pulse-mixer][Pulse Mixer]]
+  - [[#docker][Docker]]
+
 * Info
 ** Colemake Strategy
 Use neio for movement.
@@ -666,6 +759,7 @@ Taken from DOOM emacs
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-git-gutter"
 #+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   (require-d git-gutter)
   (global-git-gutter-mode +1)
@@ -1073,6 +1167,7 @@ Bind projectile commands to leader p
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
   "o" #'lsp-ui-imenu
 #+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   ;; (csetq lsp-ui-doc-enable nil)
   (csetq lsp-ui-doc-position 'bottom)
@@ -1165,6 +1260,7 @@ TODO: defer loading
 #+BEGIN_SRC emacs-lisp :noweb-ref packages
   "python-language-server"
 #+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   (add-hook 'python-mode-hook #'lsp)
 #+END_SRC
@@ -1185,6 +1281,7 @@ TODO: defer loading
   "shellcheck"
   "emacs-yaml-mode"
 #+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   (require 'yaml-mode)
 #+END_SRC
@@ -1198,6 +1295,7 @@ TODO: defer loading
   "emacs-web-mode"
   "emacs-skewer-mode"
 #+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   (require 'web-mode)
   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
@@ -1390,6 +1488,7 @@ Also want "l" to be log instead of ediff ("o")
 #+BEGIN_SRC emacs-lisp
   (require 'guix)
 #+END_SRC
+
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
   "ag" #'guix
 #+END_SRC
@@ -1541,6 +1640,7 @@ Customize Prompt. Taken from airline-themes.el and modified (lambdas are cool, o
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-pulseaudio-control"
 #+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   (require 'pulseaudio-control)
 #+END_SRC
@@ -1559,6 +1659,7 @@ Customize Prompt. Taken from airline-themes.el and modified (lambdas are cool, o
   (require 'dockerfile-mode)
   (require 'docker-compose-mode)
 #+END_SRC
+
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
   "ad" #'docker
 #+END_SRC 
