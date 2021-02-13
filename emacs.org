@@ -691,7 +691,8 @@ Taken from DOOM emacs
 * General Packages
 Random packages that are useful in several modes.
 ** Ivy
-#+BEGIN_SRC emacs-lisp
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
   "emacs-counsel" ;; Contains ivy
   "emacs-ivy-rich"
   "emacs-ivy-pass"
@@ -760,16 +761,18 @@ TODO: keybindings
   (setq which-key-idle-delay 1.5)
 #+END_SRC
 ** Avy
-#+BEGIN_SRC emacs-lisp
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
   "emacs-avy"
 #+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   (require 'avy)
 #+END_SRC
+
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
   "m" #'evil-avy-goto-char-2
 #+END_SRC
-
 ** Visual Fill column
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
