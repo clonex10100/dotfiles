@@ -43,6 +43,11 @@ alias pac="sudo pacman -Syu"
 alias pacr="sudo pacman -Rs"
 alias paci="sudo pacman -Qi"
 
+# Docker
+alias dcu="sudo docker-compose up -d"
+alias dcd"sudo docker-compose down"
+alias dcup"sudo docker-compose down && sudo docker-compose pull && sudo docker-compose up -d"
+
 #Alias for searching in pacman and opening the file in vim
 pacs (){
     pacman -Ss $1 > /tmp/pacs
