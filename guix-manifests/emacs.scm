@@ -11,7 +11,6 @@
    "emacs-diminish"
    "emacs-exwm"
    "emacs-dmenu"
-   "emacs-all-the-icons"
    "emacs-doom-themes"
    "emacs-powerline"
    "emacs-airline-themes"
@@ -28,6 +27,7 @@
    "emacs-hl-todo"
    "emacs-git-gutter"
    "emacs-auth-source-pass"
+   "emacs-all-the-icons"
    "emacs-counsel" ;; Contains ivy
    "emacs-ivy-rich"
    "emacs-ivy-pass"

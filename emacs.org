@@ -309,18 +309,6 @@ taken from emacs wiki
       (async-shell-command cmd)))
 #+END_SRC
 *** Hooks
-May want this again later but for now <leader> r p to relaod
-
-#+BEGIN_SRC emacs-lisp
-  ;; (add-hook 'after-save-hook
-  ;;           (lambda ()
-  ;;             (save-hook-for-file "~/dotfiles/guix-manifests/emacs.scm"
-  ;;                                 "guix package -m \
-  ;;                                     ~/dotfiles/guix-manifests/emacs.scm \
-  ;;                                     -p \
-  ;;                                     ~/.guix-extra-profiles/emacs/emacs")))
-#+END_SRC
-
 ** Use backup folder
 #+BEGIN_SRC emacs-lisp
   (setq backup-directory-alist '(("." . "~/.backup")))
@@ -330,17 +318,13 @@ Lock files confuse npm start
 #+BEGIN_SRC emacs-lisp
   (setq create-lockfiles nil)
 #+END_SRC
-* UI
-** All the icons
-Needed for doom-modeline and dashboard
-*Guix Packages*
-#+BEGIN_SRC lisp :noweb-ref packages
-  "emacs-all-the-icons"
-#+END_SRC
-
+** Global Keybinds
+*** Switch tabs
 #+BEGIN_SRC emacs-lisp
-  (require 'all-the-icons)
+  (global-set-key (kbd "C-x <C-left>") 'tab-previous)
+  (global-set-key (kbd "C-x <C-right>") 'tab-next)
 #+END_SRC
+* UI
 ** Theme
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -495,28 +479,6 @@ Maybe this should be and evil-colemak layer
     "K" "O"
     "L" "E")
 #+END_SRC
-****** Old
-#+BEGIN_SRC emacs-lisp
-  ;; (general-define-key :states '(normal insert)
-  ;;                     :keymaps 'override
-  ;;                     "<C-i> C-n" #'evil-window-left
-  ;;                     "<C-i> n" #'evil-window-left
-  ;;                     "<C-i> C-e" #'evil-window-down
-  ;;                     "<C-i> e" #'evil-window-down
-  ;;                     "<C-i> <C-i>" #'evil-window-up
-  ;;                     "<C-i> i" #'evil-window-up
-  ;;                     "<C-i> C-o" #'evil-window-right
-  ;;                     "<C-i> o" #'evil-window-right)
-  ;; (general-define-key :keymaps 'override
-  ;;                     "<C-i> C-n" #'evil-window-left
-  ;;                     "<C-i> n" #'evil-window-left
-  ;;                     "<C-i> C-e" #'evil-window-down
-  ;;                     "<C-i> e" #'evil-window-down
-  ;;                     "<C-i> <C-i>" #'evil-window-up
-  ;;                     "<C-i> i" #'evil-window-up
-  ;;                     "<C-i> C-o" #'evil-window-right
-  ;;                     "<C-i> o" #'evil-window-right)
-#+END_SRC
 ** Goggles
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -634,7 +596,7 @@ TODO: Just use general instead of bringing in evil-leader
   (evil-collection-init)
 #+END_SRC
 * Prog mode
-Prog mode enhancements
+Prog mode enhancements.
 ** Smartparens
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -716,12 +678,22 @@ Taken from DOOM emacs
   (global-git-gutter-mode +1)
 #+END_SRC
 * General Packages
-Random packages that are useful in several modes.
+Packages that extend emacs.
 ** Auth Source Pass
 I have no idea why this is here
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-auth-source-pass"
+#+END_SRC
+** All the icons
+Needed for doom-modeline and dashboard
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-all-the-icons"
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (require 'all-the-icons)
 #+END_SRC
 ** Ivy
 *Guix Packages*
@@ -943,7 +915,7 @@ Load babel languages
      (scheme . t)
      (python . t)))
 #+END_SRC
-** Evil Keybinds
+** Keybinds
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-evil-org"
@@ -1004,17 +976,18 @@ End hook block
   ))
 #+END_SRC
 ** Additions
+*** Anki editor
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-anki-editor"
 #+END_SRC
-*** Anki editor
+
 #+BEGIN_SRC emacs-lisp
   (require 'anki-editor)
 #+END_SRC
 * IDE
-** General
-*** Company
+Packages to turn emacs into an ide
+** Company
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-company"
@@ -1025,7 +998,7 @@ End hook block
   (require-md company)
   (add-hook 'after-init-hook 'global-company-mode)
 #+end_src
-*** Flycheck
+** Flycheck
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-flycheck"
@@ -1036,7 +1009,7 @@ End hook block
   ;;(global-flycheck-mode)
   (diminish 'flycheck-mode)
 #+end_src
-*** Yasnippet
+** Yasnippet
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-yasnippet"
@@ -1064,7 +1037,7 @@ Use guix snippets
   (with-eval-after-load 'yasnippet
     (add-to-list 'yas-snippet-dirs "~/builds/guix/etc/snippets"))
 #+END_SRC
-*** Projectile
+** Projectile
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-projectile"
@@ -1080,7 +1053,7 @@ Bind projectile commands to leader p
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
   "p" 'projectile-command-map
 #+END_SRC
-*** LSP
+** LSP
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-lsp-mode"
@@ -1148,10 +1121,11 @@ Bind projectile commands to leader p
                       "k" #'lsp-ui-peek--goto-xref
                       "K" #'lsp-ui-peek--goto-xref-other-window)
 #+END_SRC
-** Langs
+* Langs
+Language Support
 TODO: defer loading
-*** Lisp
-**** General
+** Lisp
+*** General
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-eros"
@@ -1161,7 +1135,7 @@ TODO: defer loading
   (require 'eros)
   (eros-mode 1)
 #+END_SRC
-**** Common Lisp
+*** Common Lisp
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-slime"
@@ -1171,7 +1145,7 @@ TODO: defer loading
   (require 'slime)
   (setq inferior-lisp-program "sbcl")
 #+END_SRC
-**** Scheme
+*** Scheme
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-geiser"
@@ -1188,12 +1162,12 @@ TODO: defer loading
     (add-to-list 'geiser-guile-load-path "~/builds/guix"))
 
 #+END_SRC
-**** Elisp
+*** Elisp
 #+BEGIN_SRC emacs-lisp
   (general-define-key :modes 'normal :keymaps 'emacs-lisp-mode-map
                       "C-c C-j" #'imenu)
 #+END_SRC
-*** Python
+** Python
 *Guix Packages*
 #+BEGIN_SRC emacs-lisp :noweb-ref packages
   "python-language-server"
@@ -1201,7 +1175,7 @@ TODO: defer loading
 #+BEGIN_SRC emacs-lisp
   (add-hook 'python-mode-hook #'lsp)
 #+END_SRC
-*** Rust
+** Rust
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-rust-mode"
@@ -1212,7 +1186,7 @@ TODO: defer loading
   (autoload 'rust-mode "rust-mode" nil t)
   (add-hook 'rust-mode-hook #'lsp)
 #+END_SRC
-*** Shell
+** Shell
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "shellcheck"
@@ -1221,11 +1195,11 @@ TODO: defer loading
 #+BEGIN_SRC emacs-lisp
   (require 'yaml-mode)
 #+END_SRC
-*** Hoon
+** Hoon
 #+BEGIN_SRC emacs-lisp
   (require 'hoon-mode)
 #+END_SRC
-*** Web
+** Web
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-web-mode"
@@ -1238,7 +1212,7 @@ TODO: defer loading
   ;;(require 'skewer-mode)
   ;;(add-hook 'html-mode-hook 'skewer-html-mode)
 #+END_SRC
-*** Javascript
+** Javascript
 
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-nodejs-repl"
@@ -1249,14 +1223,14 @@ TODO: defer loading
 #+BEGIN_SRC emacs-lisp
   (setq js-indent-level 2)
 #+END_SRC
-**** Node repl
+*** Node repl
 #+BEGIN_SRC emacs-lisp
   (require 'nodejs-repl)
   (general-define-key :states '(normal insert) :keymaps '(typescript-mode-map tide-mode-map)
                       "C-x C-e" #'nodejs-repl-send-last-expression)
 #+END_SRC
 
-**** [TJ]sx
+*** [TJ]sx
 #+BEGIN_SRC emacs-lisp
 
   (require 'rjsx-mode)
@@ -1267,14 +1241,14 @@ TODO: defer loading
   (add-hook 'rjsx-mode-hook #'lsp)
   ;;(add-hook 'rjsx-mode-hook #'setup-tide-mode)
 #+END_SRC
-**** NPM
+*** NPM
 #+BEGIN_SRC emacs-lisp
   (require 'npm-mode)
   (diminish 'npm-mode)
   (add-hook 'rjsx-mode-hook #'npm-mode)
 #+END_SRC
 
-*** Lua
+** Lua
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-lua-mode"
@@ -1283,17 +1257,17 @@ TODO: defer loading
 #+BEGIN_SRC emacs-lisp
   (require 'lua-mode)
 #+END_SRC
-*** C/C++
+** C/C++
 #+BEGIN_SRC emacs-lisp
   ;;(add-hook 'c++-mode-hook #'lsp)
 #+END_SRC
-**** Keybinds
+*** Keybinds
 #+BEGIN_SRC emacs-lisp
   (general-define-key :states 'normal :keymaps 'c-mode-map
                       "gr" #'xref-find-references
                       "gD" #'xref-find-definitions-other-window)
 #+END_SRC
-*** Haskell
+** Haskell
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-haskell-mode"
@@ -1303,25 +1277,22 @@ TODO: defer loading
 #+BEGIN_SRC emacs-lisp
   (require 'haskell-mode)
 #+END_SRC
-* Misc Keybinds
-** Info
-Prevent info mode from overwriting movement
-#+BEGIN_SRC emacs-lisp
-  (general-define-key :keymaps 'Info-mode-map "e" nil "i" nil)
-#+END_SRC
+* Programs
+Packages that offer a self contained experience.
 ** Man
 #+BEGIN_SRC emacs-lisp
   (evil-collection-define-key 'normal 'Man-mode-map
     "k" #'man-follow)
 #+END_SRC
-** Global
-*** Switch tabs
+** Info
 #+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-x <C-left>") 'tab-previous)
-  (global-set-key (kbd "C-x <C-right>") 'tab-next)
+  (add-hook 'Info-mode-hook #'ne/visual-center-mode)
 #+END_SRC
-* Programs
-Packages that offer a self contained experiance
+
+Prevent info mode from overwriting movement
+#+BEGIN_SRC emacs-lisp
+  (general-define-key :keymaps 'Info-mode-map "e" nil "i" nil)
+#+END_SRC
 ** Magit
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -1494,10 +1465,6 @@ Also want "l" to be log instead of ediff ("o")
        "https://karthinks.com/index.xml" "https://ambrevar.xyz/atom.xml"
        "https://www.youtube.com/channel/UCAiiOTio8Yu69c3XnR7nQBQ")))
 #+END_SRC
-** Info
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'Info-mode-hook #'ne/visual-center-mode)
-#+END_SRC
 ** Eshell
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
   "ae" #'eshell
@@ -1584,7 +1551,6 @@ Customize Prompt. Taken from airline-themes.el and modified (lambdas are cool, o
 #+BEGIN_SRC emacs-lisp
   (require 'pulseaudio-control)
 #+END_SRC
-
 ** Docker
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -1603,4 +1569,3 @@ Customize Prompt. Taken from airline-themes.el and modified (lambdas are cool, o
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
   "ad" #'docker
 #+END_SRC 
- 
