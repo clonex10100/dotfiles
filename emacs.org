@@ -14,7 +14,7 @@
   - [[#core-packages][Core Packages]]
 - [[#functions][Functions]]
   - [[#config-file-macros][Config file macros]]
-  - [[#interactvie-functions][Interactvie Functions]]
+  - [[#interactive-functions][Interactive Functions]]
   - [[#variables][Variables]]
 - [[#exwm][Exwm]]
   - [[#keybinds][Keybinds]]
@@ -57,7 +57,7 @@
   - [[#visual-fill-column][Visual Fill column]]
   - [[#perspectives][Perspectives]]
   - [[#undo-tree][Undo Tree]]
-  - [[#helful][Helful]]
+  - [[#helpful][Helpful]]
   - [[#dashboard][Dashboard]]
 - [[#org][Org]]
   - [[#setup][Setup]]
@@ -221,8 +221,7 @@ Taken from https://with-emacs.com/posts/tutorials/almost-all-you-need-to-know-ab
   (defmacro csetq (sym val)
     `(funcall (or (get ',sym 'custom-set) 'set-default) ',sym ,val))
 #+END_SRC
-
-** Interactvie Functions
+** Interactive Functions
 **** Toggle Transparency
 taken from emacs wiki
 #+BEGIN_SRC emacs-lisp
@@ -445,7 +444,6 @@ Lock files confuse npm start
   (require 'airline-themes)
   (setq airline-eshell-colors t)
   (load-theme 'airline-solarized t)
-
 #+END_SRC
 ** Tweaks
 *** Remove ui decorations
@@ -580,6 +578,7 @@ Maybe this should be and evil-colemak layer
 #+BEGIN_SRC emacs-lisp
   (require 'evil-goggles)
   (csetq evil-goggles-enable-delete nil)
+  (csetq evil-goggles-enable-change nil)
   (evil-goggles-mode)
 #+END_SRC
 ** Leader
@@ -698,14 +697,15 @@ Prog mode enhancements.
 
 #+BEGIN_SRC emacs-lisp
   (require-d smartparens)
+  (require-d evil-smartparens)
   (require 'smartparens-config)
 
-  (smartparens-global-mode)
+  (add-hook 'prog-mode-hook #'smartparens-mode)
+  (add-hook 'smartparens-enabled-hook #'evil-smartparens-mode)
 #+END_SRC
 ** Paran matching
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'prog-mode-hook 'show-paren-mode)
-  (require 'general)
+  (add-hook 'prog-mode-hook #'show-paren-mode)
 #+END_SRC
 ** Rainbow delimiters
 *Guix Packages*
@@ -715,7 +715,7 @@ Prog mode enhancements.
 
 #+BEGIN_SRC emacs-lisp
   (require-d rainbow-delimiters)
-  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 #+END_SRC
 ** Rainbow Mode
 *Guix Packages*
@@ -754,7 +754,7 @@ Taken from DOOM emacs
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'prog-mode-hook 'show-paren-mode)
+  (add-hook 'prog-mode-hook #'show-paren-mode)
 #+END_SRC
 ** Eldoc
 #+BEGIN_SRC emacs-lisp
@@ -897,7 +897,7 @@ TODO: keybindings
 
 Share some buffers across all perspectives
 #+BEGIN_SRC emacs-lisp
-  (setq persp-shared-buffs '("*Messages*" "*Backtrace*" "emacs.org" "*dashboard*"))
+  (setq persp-shared-buffs '("*Messages*" "*Backtrace*" "emacs.org" "todo.org" "*dashboard*"))
   (add-hook 'persp-switch-hook
             (lambda ()
               (dolist (buff persp-shared-buffs) 
@@ -916,7 +916,7 @@ Share some buffers across all perspectives
   (require 'undo-tree)
   (global-undo-tree-mode)
 #+END_SRC
-** Helful  
+** Helpful
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-helpful"
@@ -954,7 +954,6 @@ So it must be manually activated
                                    (redisplay)
                                    (run-hooks 'dashboard-after-initialize-hook)))
 #+END_SRC
-
 * Org
 ** Setup
 *Guix Packages*
@@ -1089,7 +1088,7 @@ Packages to turn emacs into an ide
 #+begin_src emacs-lisp
   (setq company-idle-delay 0.0)
   (require-md company)
-  (add-hook 'after-init-hook 'global-company-mode)
+  (add-hook 'after-init-hook #'global-company-mode)
 #+end_src
 ** Flycheck
 *Guix Packages*
@@ -1144,7 +1143,7 @@ Use guix snippets
 
 Bind projectile commands to leader p
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
-  "p" 'projectile-command-map
+  "p" #'projectile-command-map
 #+END_SRC
 ** LSP
 *Guix Packages*
