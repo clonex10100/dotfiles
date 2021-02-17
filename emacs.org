@@ -47,6 +47,7 @@
   - [[#hl-todo][HL todo]]
   - [[#eldoc][Eldoc]]
   - [[#git-gutter][Git gutter]]
+  - [[#oragami][Oragami]]
 - [[#general-packages][General Packages]]
   - [[#auth-source-pass][Auth Source Pass]]
   - [[#all-the-icons][All the icons]]
@@ -770,6 +771,28 @@ Taken from DOOM emacs
 #+BEGIN_SRC emacs-lisp
   (require-d git-gutter)
   (global-git-gutter-mode +1)
+#+END_SRC
+** Oragami
+Code Folding
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-origami-el"
+#+END_SRC
+  
+#+BEGIN_SRC emacs-lisp
+  (require 'origami)
+  (add-hook 'prog-mode-hook #'origami-mode)
+#+END_SRC
+
+Fold =aio-defun=
+#+BEGIN_SRC emacs-lisp
+  (defun origami-elisp-parser (create)
+    (origami-lisp-parser create "(\\(aio-\\)?def\\w*\\s-*\\(\\s_\\|\\w\\|[:?!]\\)*\\([ \\t]*(.*?)\\)?"))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :noweb-ref leader-key
+  "f" #'origami-toggle-node
+  "F" #'origami-recursively-toggle-node
 #+END_SRC
 * General Packages
 Packages that extend emacs.
