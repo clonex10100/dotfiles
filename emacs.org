@@ -1349,7 +1349,6 @@ TODO: defer loading
 
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-nodejs-repl"
-  "emacs-rjsx-mode"
   "emacs-npm-mode"
 #+END_SRC
 
@@ -1363,16 +1362,31 @@ TODO: defer loading
                       "C-x C-e" #'nodejs-repl-send-last-expression)
 #+END_SRC
 
-*** [TJ]sx
-#+BEGIN_SRC emacs-lisp
+*** Modes
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-js2-mode"
+  "emacs-rjsx-mode"
+  "emacs-typescript-mode"
+  #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
   (require 'rjsx-mode)
+  (require 'js2-mode)
+  (require 'typescript-mode)
   (csetq js2-strict-missing-semi-warning nil)
-  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . rjsx-mode))
-  (add-to-list 'auto-mode-alist '("\\.ts\\'" . rjsx-mode))
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+  (add-hook 'js2-mode-hook #'lsp)
+
+  (add-to-list 'auto-mode-alist '("\\.jsx\\'" . rjsx-mode))
   (add-hook 'rjsx-mode-hook #'lsp)
-  ;;(add-hook 'rjsx-mode-hook #'setup-tide-mode)
+
+  (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-mode))
+  (add-hook 'typescript-mode-hook #'lsp)
+
+  (define-derived-mode tsx-mode web-mode "tsx-mode")
+  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-mode))
+  (add-hook 'tsx-mode-hook #'lsp)
 #+END_SRC
 *** NPM
 #+BEGIN_SRC emacs-lisp
