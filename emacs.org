@@ -1630,6 +1630,11 @@ Customize Prompt. Taken from airline-themes.el and modified (lambdas are cool, o
   "libvterm"
   "emacs-vterm"
 #+END_SRC
+Don't shadow escape
+#+BEGIN_SRC emacs-lisp
+  (general-define-key :states 'insert :keymaps 'vterm-mode-map
+                      "<escape>" nil)
+#+END_SRC
 ** Mentor
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
