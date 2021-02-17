@@ -48,6 +48,7 @@
   - [[#eldoc][Eldoc]]
   - [[#git-gutter][Git gutter]]
   - [[#oragami][Oragami]]
+  - [[#fira-code-ligatures][Fira Code Ligatures]]
 - [[#general-packages][General Packages]]
   - [[#auth-source-pass][Auth Source Pass]]
   - [[#all-the-icons][All the icons]]
@@ -793,6 +794,18 @@ Fold =aio-defun=
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
   "f" #'origami-toggle-node
   "F" #'origami-recursively-toggle-node
+#+END_SRC
+** Fira Code Ligatures
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-fira-code-mode"
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (require 'fira-code-mode)
+  (add-hook 'prog-mode-hook #'fira-code-mode)
+
+  (add-to-list 'fira-code-mode-disabled-ligatures "x")
 #+END_SRC
 * General Packages
 Packages that extend emacs.
