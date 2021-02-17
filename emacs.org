@@ -12,7 +12,7 @@
   - [[#make-tab-and-c-i-read-as-seperate-keys][Make tab and C-i read as seperate keys]]
   - [[#start-the-emacs-server][Start the emacs server]]
   - [[#core-packages][Core Packages]]
-- [[#functions][Functions]]
+- [[#my-elisp][My Elisp]]
   - [[#config-file-macros][Config file macros]]
   - [[#interactive-functions][Interactive Functions]]
   - [[#variables][Variables]]
@@ -186,7 +186,7 @@ Packages needed for this config
 #+BEGIN_SRC emacs-lisp
   (require 'diminish)
 #+END_SRC
-* Functions
+* My Elisp
 ** Config file macros
 *** Modeify
 #+BEGIN_SRC emacs-lisp
@@ -328,7 +328,8 @@ taken from emacs wiki
           (ne/guix-bump-at-point commit)
           (save-buffer)
           (magit-stage-file (magit-file-relative-name))
-          (magit-commit-create (list (concat "-m Bumped " name)))))))
+          (magit-commit-create (list (concat "-m Bumped " name)))
+          (magit-push-current-to-pushremote)))))
 #+END_SRC
 ** Variables
 *** Solarized colors
