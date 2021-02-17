@@ -15,6 +15,15 @@ alias v="nvim"
 alias e="sudo -e"
 alias edv="EDITOR=nvim"
 
+alias deu="guix pull && guix package -p ~/.guix-extra-profiles/de/de -i"
+
+whc (){
+    cat $(which $1)
+}
+
+whe (){
+    $EDITOR $(which $1)
+}
 
 #Program aliases
 alias mpvss="mpv --deband=no --screenshot-format=png"
