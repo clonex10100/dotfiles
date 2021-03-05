@@ -12,6 +12,8 @@
    "emacs-exwm"
    "emacs-dmenu"
    "emacs-doom-themes"
+   "emacs-solarized-theme"
+   "emacs-doom-modeline"
    "emacs-powerline"
    "emacs-airline-themes"
    "emacs-evil"
@@ -43,10 +45,9 @@
    "emacs-dashboard"
    "emacs-org"
    "emacs-org-journal"
-   ;; Temporary disable as it conflicts with company
-   ;;"emacs-org-roam"
    "emacs-toc-org"
    "emacs-org-superstar"
+   "emacs-org-roam"
    "emacs-evil-org"
    "emacs-anki-editor"
    "emacs-company"
@@ -81,6 +82,7 @@
    "emacs-haskell-snippets"
    "emacs-flycheck-haskell"
    "emacs-magit"
+   "emacs-forge"
    "emacs-pdf-tools"
    "emacs-guix" ;; Curently broken
    "emacs-weechat"
