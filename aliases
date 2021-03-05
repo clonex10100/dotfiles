@@ -1,3 +1,4 @@
+# -*- sh -*-
 #Basic aliases
 alias q="exit"
 alias rtorrent="~/rtorrent/start"
@@ -11,7 +12,10 @@ alias clip="xclip -selection clipboard"
 alias kkill="kill -KILL"
 
 #Editing aliases
-alias v="nvim"
+#alias v="nvim"
+alias v="$EDITOR"
+alias edit="emacsclient -c --frame-parameters='(quote (title . \"scratchmacs\"))'"
+alias vim="nvim"
 alias e="sudo -e"
 alias edv="EDITOR=nvim"
 

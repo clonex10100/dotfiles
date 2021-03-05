@@ -1,3 +1,4 @@
+# -*- mode: sh; -*-
 #load agnoster prompt
 #fpath=("$HOME/.zprompts" "$fpath[@]")
 #autoload -Uz promptinit
@@ -11,6 +12,7 @@ else
     autoload -Uz promptinit
     promptinit
     prompt agnoster
+    #prompt agnoster
     autoload -Uz add-zsh-hook
 fi
 
@@ -31,7 +33,7 @@ fi
 . ~/.zkeybinds
 
 #export EDITOR=nvim
-export EDITOR=emacsclient
+export EDITOR="emacsclient -c --frame-parameters='(quote (title . \"speedmacs\"))'"
 export XDG_CONFIG_HOME=~/.config
 
 #Load aliases
@@ -45,13 +47,9 @@ export PATH="$PATH:$HOME/.dmacs.d/bin"
 export PATH="$PATH:$HOME/.local/bin"
 #Add rustup to path
 export PATH="$PATH:$HOME/.cargo/bin"
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
 
 alias cc="gcc"
 export CC="gcc"
-#Loads rvm as a function
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 
 #Loads ssh-agent
 if ! pgrep -u "$USER" ssh-agent > /dev/null; then
@@ -124,3 +122,9 @@ export PATH="$HOME/.npm/bin:$PATH"
 export PATH="$HOME/bin:$PATH"
 
 export RT_HOME="$HOME/rtorrent"
+
+# Special snowflake rvm needs to be last
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
+#Loads rvm as a function
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"

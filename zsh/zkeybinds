@@ -1,5 +1,10 @@
-bindkey -v
-bindkey -r "^h"
+autoload -z edit-command-line
+zle -N edit-command-line
+bindkey "^X^E" edit-command-line
+
+# Make escape in ZLE not lag
+export KEYTIMEOUT=1
+bindkey "\e" vi-cmd-mode
 bindkey "^h" vi-cmd-mode
 
 # Colemak vim binds
