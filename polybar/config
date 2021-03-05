@@ -15,31 +15,45 @@
 ;   The README contains a lot of information
 ;
 ;==========================================================
+; Transparent
+; background = #c8002b36
+; background-alt = #c8073642
+; foreground = #e6839496
+; Opaque
+; background = #fdf6e3
+; background-alt = #eee8d5
+; foreground = #586e75
+
 [colors]
-#Transparent
-#background = #c8002b36
-#background-alt = #c8073642
+; Solarized
+; background = #002b36
+; background-alt = #073642
+; foreground = #839496
+; emph = #93a1a1
 
-#foreground = #e6839496
-#Opaque
-background = #002b36
-#background = #fdf6e3
-background-alt = #073642
-#background-alt = #eee8d5
+; yellow=#b58900
+; orange=#cb4b16
+; red=#dc322f
+; magenta=#d33682
+; violet=#6c71c4
+; blue=#268bd2
+; cyan=#2aa198
+; green=#859900
 
-foreground = #839496
-#foreground = #586e75
+; Gruvbox
+background = #282828
+background-alt = #1d2021
+foreground = #a89984
+emph = #ebdbb2
 
-emph = #93a1a1
-
-yellow=#b58900
-orange=#cb4b16
-red=#dc322f
-magenta=#d33682
-violet=#6c71c4
-blue=#268bd2
-cyan=#2aa198
-green=#859900
+yellow=#d79921
+orange=#d65d0e
+red=#cc241d
+magenta=
+violet=#b16286
+blue=#458588
+cyan=#689d6a
+green=#98971a
 
 [bar/main]
 ;monitor = ${env:MONITOR:HDMI-1}
@@ -101,7 +115,7 @@ mount-0 = /data
 
 label-mounted = /d:%free%
 label-unmounted = %mountpoint% not mounted
-label-mounted-underline = ${colors.cyan}
+label-mounted-underline = ${colors.green}
 
 [module/filesystemD2]
 type = internal/fs
@@ -111,7 +125,7 @@ mount-0 = /data2
 
 label-mounted = /d2:%free%
 label-unmounted = %mountpoint% not mounted
-label-mounted-underline = ${colors.magenta}
+label-mounted-underline = ${colors.green}
 
 [module/i3]
 type = internal/i3
@@ -299,7 +313,8 @@ type = internal/mpd
 host = 127.0.0.1
 port = 6600
 
-format-online= <label-song> <bar-progress> <label-time>
+#format-online= <label-song> <bar-progress> <label-time>
+format-online= <label-song> <label-time>
 
 label-song = %title%
 format-online-underline = ${colors.green}
