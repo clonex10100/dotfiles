@@ -27,6 +27,7 @@
   - [[#use-backup-folder][Use backup folder]]
   - [[#dont-use-lock-files][Don't use lock files]]
   - [[#global-keybinds][Global Keybinds]]
+  - [[#frame-params][Frame Params]]
 - [[#ui][UI]]
   - [[#theme][Theme]]
   - [[#font][Font]]
@@ -63,6 +64,7 @@
   - [[#dashboard][Dashboard]]
 - [[#org][Org]]
   - [[#setup][Setup]]
+  - [[#roam][Roam]]
   - [[#keybinds-1][Keybinds]]
   - [[#additions][Additions]]
 - [[#ide][IDE]]
@@ -82,10 +84,12 @@
   - [[#lua][Lua]]
   - [[#cc][C/C++]]
   - [[#haskell][Haskell]]
+  - [[#ruby][Ruby]]
 - [[#programs][Programs]]
   - [[#man][Man]]
   - [[#info-1][Info]]
   - [[#magit][Magit]]
+  - [[#forge][Forge]]
   - [[#sbbs][Sbbs]]
   - [[#keepass][Keepass]]
   - [[#pdf-tools][Pdf tools]]
@@ -100,6 +104,7 @@
   - [[#mentor][Mentor]]
   - [[#pulse-mixer][Pulse Mixer]]
   - [[#docker][Docker]]
+  - [[#urbit-chat][Urbit-chat]]
 
 * Info
 ** Colemake Strategy
@@ -318,20 +323,21 @@ taken from emacs wiki
 
   (defun ne/guix-bump-current-project ()
     (interactive)
-    (let ((name (projectile-project-name))
-          (commit (replace-regexp-in-string "\n\\'" "" 
-                                            (shell-command-to-string "git rev-parse HEAD"))))
-      (shell-command "git rev-parse HEAD")
-      (with-current-buffer (find-file "/home/clone/projects/guix-channel/clone.scm")
-        (save-excursion
-          (goto-char (point-min))
-          (search-forward (concat "define-public " name))
-          (message "bCommit: %s" commit)
-          (ne/guix-bump-at-point commit)
-          (save-buffer)
-          (magit-stage-file (magit-file-relative-name))
-          (magit-commit-create (list (concat "-m Bumped " name)))
-          (magit-push-current-to-pushremote)))))
+    (save-current-buffer
+      (let ((name (projectile-project-name))
+            (commit (replace-regexp-in-string "\n\\'" ""
+                                              (shell-command-to-string "git rev-parse HEAD"))))
+        (shell-command "git rev-parse HEAD")
+        (with-current-buffer (find-file "/home/clone/projects/guix-channel/clone.scm")
+          (save-excursion
+            (goto-char (point-min))
+            (search-forward (concat "define-public " name))
+            (message "bCommit: %s" commit)
+            (ne/guix-bump-at-point commit)
+            (save-buffer)
+            (magit-stage-file (magit-file-relative-name))
+            (magit-commit-create (list (concat "-m Bumped " name)))
+            (magit-push-current-to-pushremote ()))))))
 #+END_SRC
 ** Variables
 *** Solarized colors
@@ -352,6 +358,16 @@ taken from emacs wiki
   (setq s_blue "#268bd2")
   (setq s_cyan "#2aa198")
   (setq s_green "#859900")
+#+END_SRC
+*** Gruvbox colors
+#+BEGIN_SRC emacs-lisp
+  (setq g_red "#cc241d")
+  (setq g_green "#98971a")
+  (setq g_yellow "#d79921")
+  (setq g_blue "#458588")
+  (setq g_purple "#b16286")
+  (setq g_aqua "#689d6a")
+  (setq g_orange "#d65d0e")
 #+END_SRC
 * Exwm
 *Guix Packages*
@@ -418,15 +434,75 @@ Lock files confuse npm start
   (global-set-key (kbd "C-x <C-left>") 'tab-previous)
   (global-set-key (kbd "C-x <C-right>") 'tab-next)
 #+END_SRC
+** Frame Params
+#+BEGIN_SRC emacs-lisp
+  (setf (alist-get 'title default-frame-alist) "emacs-frame")
+#+END_SRC
 * UI
 ** Theme
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-doom-themes"
+  "emacs-solarized-theme"
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (load-theme 'doom-solarized-dark t)
+  (require 'doom-themes)
+  (defvar ne/current-theme nil)
+#+END_SRC
+
+Fix theme switching
+#+BEGIN_SRC emacs-lisp
+  (defvar ne/theme-tweaks '((doom-gruvbox (mode-line-inactive . (:background "#1d2021")))))
+
+  (defun ne/apply-theme-tweaks (theme)
+    (when-let ((tweaks (alist-get theme ne/theme-tweaks)))
+      (apply #'custom-theme-set-faces
+             theme
+             (mapcar
+              (lambda (tweak)
+                (let* ((face (car tweak))
+                       (spec (cdr tweak)))
+                  `(,face ((t (,@spec :inherit ,face))))))
+              tweaks))
+      (dolist (tweak tweaks)
+        (custom-theme-recalc-face (car tweak))))
+    'done)
+
+  (defun ne/theme-advice (orig-fn theme &optional no-confirm no-enable)
+    (with-temp-buffer
+      (when-let (result (funcall orig-fn theme no-confirm no-enable))
+        (setq ne/current-theme theme)
+        (mapc #'disable-theme (remq theme custom-enabled-themes))
+        (ne/apply-theme-tweaks theme)
+        result)))
+
+  (advice-add #'load-theme :around #'ne/theme-advice)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (defconst ne/theme-map '((doom-solarized-dark . doom-solarized-light)
+                           (doom-one . doom-one-light)
+                           (doom-gruvbox . doom-gruvbox-light)
+                           (doom-nord . doom-nord-light)))
+
+  (defun ne/toggle-light-theme ()
+    (interactive)
+    (when-let (new-theme (or (cdr-safe (assoc ne/current-theme ne/theme-map))
+                             (car-safe (rassoc ne/current-theme ne/theme-map))))
+      (load-theme new-theme t)))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :noweb-ref leader-key
+  ",l" #'ne/toggle-light-theme
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (load-theme 'doom-gruvbox t)
+
+  ;; HACK: unfuck the gruvbox bar. Need to do this a better way to avoid
+  ;; messing up themes
+
 #+END_SRC
 ** Font
 #+BEGIN_SRC emacs-lisp
@@ -434,6 +510,18 @@ Lock files confuse npm start
   (set-face-attribute 'default nil :font "Fira Code" :height 90)
 #+END_SRC
 ** Modeline
+*** Doom
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-doom-modeline"
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (require 'doom-modeline)
+  (doom-modeline-mode 1)
+  (setq doom-modeline-major-mode-icon nil)
+#+END_SRC
+*** Airline
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-powerline"
@@ -441,12 +529,12 @@ Lock files confuse npm start
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (require 'powerline)
-  (powerline-vim-theme)
+  ;; (require 'powerline)
+  ;; (powerline-vim-theme)
 
-  (require 'airline-themes)
-  (setq airline-eshell-colors t)
-  (load-theme 'airline-solarized t)
+  ;; (require 'airline-themes)
+  ;; (setq airline-eshell-colors t)
+  ;; (load-theme 'airline-solarized t)
 #+END_SRC
 ** Tweaks
 *** Remove ui decorations
@@ -470,7 +558,7 @@ Lock files confuse npm start
 *** Transparancy
 Taken from emacs wiki
 #+BEGIN_SRC emacs-lisp
-  (defvar alpha-focused 95)
+  (defvar alpha-focused 97)
   (defvar alpha-unfocused 90)
   (set-frame-parameter (selected-frame) 'alpha (cons alpha-focused
                                                      alpha-unfocused))
@@ -571,6 +659,9 @@ Maybe this should be and evil-colemak layer
     "J" "N"
     "K" "O"
     "L" "E")
+
+  (general-define-key :keymaps 'evil-window-map
+                      "C-o" nil)
 #+END_SRC
 ** Goggles
 *Guix Packages*
@@ -704,7 +795,7 @@ Prog mode enhancements.
   (require 'smartparens-config)
 
   (add-hook 'prog-mode-hook #'smartparens-mode)
-  (add-hook 'smartparens-enabled-hook #'evil-smartparens-mode)
+  ;; (remove-hook 'smartparens-enabled-hook #'evil-smartparens-mode)
 #+END_SRC
 ** Paran matching
 #+BEGIN_SRC emacs-lisp
@@ -794,6 +885,7 @@ Fold =aio-defun=
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
   "f" #'origami-toggle-node
   "F" #'origami-recursively-toggle-node
+  "C-f" #'origami-toggle-all-nodes
 #+END_SRC
 ** Fira Code Ligatures
 *Guix Packages*
@@ -806,6 +898,7 @@ Fold =aio-defun=
   (add-hook 'prog-mode-hook #'fira-code-mode)
 
   (add-to-list 'fira-code-mode-disabled-ligatures "x")
+  (add-to-list 'fira-code-mode-disabled-ligatures "[]")
 #+END_SRC
 * General Packages
 Packages that extend emacs.
@@ -861,6 +954,7 @@ TODO: keybindings
   (setq neo-autorefresh nil)
   (add-hook 'neo-after-create-hook
             (lambda (_) (display-line-numbers-mode 0)))
+  (add-to-list 'neo-hidden-regexp-list "\\.o$")
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
   (defun ne/neotree-refresh-toggle ()
@@ -928,7 +1022,7 @@ TODO: keybindings
 #+BEGIN_SRC emacs-lisp
   (require 'perspective)
   (diminish 'persp-mode)
-  (csetq persp-show-modestring nil)
+  ;;(csetq persp-show-modestring t)
   (persp-mode)
 #+END_SRC
 
@@ -997,8 +1091,6 @@ So it must be manually activated
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-org"
   "emacs-org-journal"
-  ;; Temporary disable as it conflicts with company
-  ;;"emacs-org-roam"
   "emacs-toc-org"
   "emacs-org-superstar"
 #+END_SRC
@@ -1018,6 +1110,7 @@ Tangle on save
   (defun ne/org-babel-tangle-dont-ask ()
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
+      (toc-org-insert-toc)
       (org-babel-tangle)))
 
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'ne/org-babel-tangle-dont-ask
@@ -1043,6 +1136,28 @@ Load babel languages
    '((emacs-lisp . t)
      (scheme . t)
      (python . t)))
+#+END_SRC
+** Roam
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-org-roam"
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (require 'org-roam)
+  (setq org-roam-directory "~/org-roam")
+  (add-hook 'after-init-hook 'org-roam-mode)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (general-define-key :states '(normal insert) :keymaps 'org-roam-mode-map
+                      "C-c l" #'org-roam-insert
+                      "C-c b" #'org-roam)
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp :noweb-ref leader-key
+  "ar" #'org-roam-find-file
 #+END_SRC
 ** Keybinds
 *Guix Packages*
@@ -1164,7 +1279,8 @@ enter insert mode on snippet insert
 Use guix snippets
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'yasnippet
-    (add-to-list 'yas-snippet-dirs "~/builds/guix/etc/snippets"))
+    (add-to-list 'yas-snippet-dirs "~/builds/guix/etc/snippets")
+    (push "/home/clone/.vmacs.d/snippets" yas-snippet-dirs))
 #+END_SRC
 ** Projectile
 *Guix Packages*
@@ -1291,6 +1407,9 @@ TODO: defer loading
     (add-to-list 'geiser-guile-load-path "~/.guix-profile/share/guile/site/3.0/")
     (add-to-list 'geiser-guile-load-path "~/builds/guix"))
 
+  (add-hook 'xscheme-start-hook #'smartparens-mode)
+  (add-hook 'xscheme-start-hook #'rainbow-delimiters-mode)
+
 #+END_SRC
 *** Elisp
 #+BEGIN_SRC emacs-lisp
@@ -1330,6 +1449,8 @@ TODO: defer loading
 ** Hoon
 #+BEGIN_SRC emacs-lisp
   (require 'hoon-mode)
+  (csetq hoon-herb-path "/home/clone/.nix-profile/bin/herb")
+  (remove-hook 'hoon-mode-hook #'lsp)
 #+END_SRC
 ** Web
 *Guix Packages*
@@ -1346,7 +1467,6 @@ TODO: defer loading
   ;;(add-hook 'html-mode-hook 'skewer-html-mode)
 #+END_SRC
 ** Javascript
-
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-nodejs-repl"
   "emacs-npm-mode"
@@ -1368,7 +1488,7 @@ TODO: defer loading
   "emacs-js2-mode"
   "emacs-rjsx-mode"
   "emacs-typescript-mode"
-  #+END_SRC
+#+END_SRC
 
 #+BEGIN_SRC emacs-lisp
   (require 'rjsx-mode)
@@ -1394,7 +1514,6 @@ TODO: defer loading
   (diminish 'npm-mode)
   (add-hook 'rjsx-mode-hook #'npm-mode)
 #+END_SRC
-
 ** Lua
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -1423,6 +1542,10 @@ TODO: defer loading
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
   (require 'haskell-mode)
+#+END_SRC
+** Ruby
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'ruby-mode-hook #'lsp)
 #+END_SRC
 * Programs
 Packages that offer a self contained experience.
@@ -1473,6 +1596,18 @@ Also want "l" to be log instead of ediff ("o")
     "gn" #'magit-section-up
     "ge" #'magit-section-forward-sibling
     "gi" #'magit-section-backward-sibling)
+#+END_SRC
+** Forge
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-forge"
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'magit
+    (require 'forge))
+
+  (setq auth-sources '("~/.authinfo"))
 #+END_SRC
 ** Sbbs
 #+BEGIN_SRC emacs-lisp
@@ -1573,6 +1708,8 @@ Also want "l" to be log instead of ediff ("o")
                                  s_orange s_blue s_blue
                                  s_violet s_magenta s_base1
                                  s_blue s_base1 s_base0))
+
+
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
@@ -1724,3 +1861,29 @@ Don't shadow escape
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
   "ad" #'docker
 #+END_SRC 
+** Urbit-chat
+#+BEGIN_SRC emacs-lisp
+  (require 'urbit-chat-client)
+  ;; (csetq urbit-chat-other-patp-colors (list s_orange
+  ;;                                           s_red
+  ;;                                           s_magenta
+  ;;                                           s_violet
+  ;;                                           s_yellow
+  ;;                                           s_cyan
+  ;;                                           s_green))
+  ;; (csetq urbit-chat-your-patp-color s_blue)
+  ;; (csetq urbit-chat-url-color s_cyan)
+
+  (csetq urbit-chat-client-other-patp-colors (list g_orange
+                                                   g_red
+                                                   g_purple
+                                                   g_yellow
+                                                   g_aqua
+                                                   g_green))
+  (csetq urbit-chat-client-your-patp-color g_blue)
+  (csetq urbit-chat-client-url-color g_aqua)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :noweb-ref leader-key
+  "auc" #'urbit-chat-client-start
+#+END_SRC

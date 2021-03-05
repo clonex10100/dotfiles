@@ -183,7 +183,7 @@ crk86(){
         # echo $P
         # cp $1 ~/Pictures/wallpapers/
     # fi
- 
+
     # ln -s $P ~/Pictures/wallpapers/wallpaper
     # feh --bg-scale ~/Pictures/wallpapers/wallpaper
 # }
