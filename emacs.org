@@ -28,6 +28,7 @@
   - [[#dont-use-lock-files][Don't use lock files]]
   - [[#global-keybinds][Global Keybinds]]
   - [[#frame-params][Frame Params]]
+  - [[#dont-ask-about-symlinks][Don't ask about symlinks]]
 - [[#ui][UI]]
   - [[#theme][Theme]]
   - [[#font][Font]]
@@ -120,6 +121,8 @@ Keys like gj and gk that use movement key semantics should be swapped for colema
 
 h needs to replace i in text object otherwise I can't cast line up in visual mode.
 ** Todo
+- Create a tower of goto-definition/references modes
+  E.g. if lsp isn't on use xref, if xref isn't on use evil, etc
 - More snipets
 - More org mode
 - Change the behavior of reference popup buffers.
@@ -437,6 +440,10 @@ Lock files confuse npm start
 ** Frame Params
 #+BEGIN_SRC emacs-lisp
   (setf (alist-get 'title default-frame-alist) "emacs-frame")
+#+END_SRC
+** Don't ask about symlinks
+#+BEGIN_SRC emacs-lisp
+  (csetq vc-follow-symlinks t)
 #+END_SRC
 * UI
 ** Theme
@@ -1702,7 +1709,7 @@ Also want "l" to be log instead of ediff ("o")
                              "dark magenta" "magenta" "dark cyan"
                              "royal blue" "dark gray" "gray"))
 
-  (weechat-connect "localhost" 9000 "2dLToM3HVaEpGaNT")
+  ;;(weechat-connect "localhost" 9000 "2dLToM3HVaEpGaNT")
   (setq weechat-color-list (list 'unspecified s_base03 s_base01 s_red s_red
                                  s_green s_green s_base1
                                  s_orange s_blue s_blue
