@@ -11,12 +11,17 @@ alias sizes="du -shc * | sort -h"
 alias clip="xclip -selection clipboard"
 alias kkill="kill -KILL"
 
+alias evim="EDITOR=nvim sudo -e"
+evpn() {
+    sudo /usr/local/bin/e-vpn zsh -c "$@"
+}
+
 #Editing aliases
 #alias v="nvim"
 alias v="$EDITOR"
 alias edit="emacsclient -c --frame-parameters='(quote (title . \"scratchmacs\"))'"
 alias vim="nvim"
-alias e="sudo -e"
+alias e="EDITOR=nvim sudo -e"
 alias edv="EDITOR=nvim"
 
 alias deu="guix pull && guix package -p ~/.guix-extra-profiles/de/de -i"
