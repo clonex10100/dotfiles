@@ -1,6 +1,0 @@
-#!/bin/bash
-manifests=""
-for manifest in ./*.scm; do
-	manifests="${manifests} -m ${manifest}"
-done
-guix package$manifests -p ~/.guix-extra-profiles/langs/langs
