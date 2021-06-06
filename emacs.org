@@ -1098,6 +1098,30 @@ So it must be manually activated
                                    (redisplay)
                                    (run-hooks 'dashboard-after-initialize-hook)))
 #+END_SRC
+
+Function to add a buffer to current perspective and switch to it
+#+begin_src emacs-lisp
+  (defun ne/persp-ivy-add-and-switch (arg)
+    (interactive "P")
+    (let* ((buffer
+           (apply #'ivy-read
+                  (append
+                   (list
+                    (format "Switch to buffer (%s): " (persp-current-name))
+                    (mapcar #'buffer-name (buffer-list))
+                    :preselect (buffer-name (persp-other-buffer (current-buffer)))
+                    :keymap ivy-switch-buffer-map
+                    :caller #'ivy-switch-buffer
+                    :matcher #'ivy--switch-buffer-matcher)
+                   nil)))
+          (buffer (get-buffer buffer)))
+      (unless (persp-is-current-buffer buffer)
+        (push buffer (persp-current-buffers)))
+      (switch-to-buffer buffer)))
+
+  (general-define-key :states '(normal insert) :keymaps 'persp-mode-map
+                      "C-x x a" #'ne/persp-ivy-add-and-switch)
+#+end_src
 * Org
 ** Setup
 *Guix Packages*
