@@ -9,7 +9,6 @@ else
     autoload -Uz promptinit
     promptinit
     prompt agnoster
-    #prompt agnoster
     autoload -Uz add-zsh-hook
 fi
 
@@ -68,6 +67,13 @@ zstyle :compinstall filename '/home/clone/.zshrc'
 
 autoload -Uz compinit
 compinit
+
+# Only recheck the cache once a day
+# TODO Stopped working
+# for dump in ~/.zcompdump(N.mh+24); do
+#     compinit
+# done
+
 # Local guix ruby gems
 #ruby_hash=$(readlink -f $(which ruby) | cut -d '/' -f 4)
 #ruby_ver="$(echo $ruby_hash | cut -d '-' -f 3 | cut -d '.' -f 1-2).0"

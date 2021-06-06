@@ -1,5 +1,5 @@
+# -*- sh -*-
 source "$HOME/.cargo/env"
-export QT_QPA_PLATFORMTHEME=gtk2
 if [ -e /home/clone/.nix-profile/etc/profile.d/nix.sh ]; then . /home/clone/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
 
 #
@@ -23,6 +23,8 @@ GUIX_PROFILE="/home/clone/.guix-profile"
 . "$GUIX_PROFILE/etc/profile"
 
 
+export guix_extra_profiles=(de emacs emacs-doom)
+
 GUIX_EXTRA_PROFILES=$HOME/.guix-extra-profiles
 for i in $GUIX_EXTRA_PROFILES/*; do
   profile=$i/$(basename "$i")
@@ -33,3 +35,4 @@ for i in $GUIX_EXTRA_PROFILES/*; do
   unset profile
 done
 
+export EMAIL="noah@nevans.me"
