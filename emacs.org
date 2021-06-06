@@ -68,6 +68,7 @@
 - [[#org][Org]]
   - [[#setup][Setup]]
   - [[#roam][Roam]]
+  - [[#subdirectory-namespacing][Subdirectory Namespacing]]
   - [[#keybinds-1][Keybinds]]
   - [[#additions][Additions]]
 - [[#ide][IDE]]
@@ -1229,6 +1230,23 @@ Load babel languages
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
   "ar" #'org-roam-find-file
 #+END_SRC
+** Subdirectory Namespacing
+Read relative paths in capture template.
+#+BEGIN_SRC emacs-lisp
+(setq org-roam-capture-templates
+  `(("d" "default" plain (function org-roam-capture--get-point)
+     "%?"
+     :file-name "%(file-name-directory \"${title}\")%<%Y%m%d%H%M%S>-%(file-name-nondirectory \"${title}\")"
+     :head "#+title: %(file-name-nondirectory \"${title}\")\n"
+     :unnarrowed t)))
+#+END_SRC
+
+Add subdirectories as tags.
+#+BEGIN_SRC emacs-lisp
+(setq org-roam-tag-sources '(prop all-directories))
+#+END_SRC
+
+
 ** Keybinds
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
