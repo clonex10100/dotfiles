@@ -111,6 +111,7 @@
   - [[#urbit-chat][Urbit-chat]]
   - [[#mozc-日本語は入力][mozc (日本語は入力)]]
   - [[#imenu-list][Imenu List]]
+  - [[#mail][Mail]]
 
 * Info
 ** Colemake Strategy
@@ -1999,4 +2000,24 @@ Don't shadow escape
 #+BEGIN_SRC emacs-lisp
   (require 'imenu-list)
   (csetq imenu-list-position 'left)
+#+END_SRC
+** Mail
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "mu"
+  "isync"
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (require 'mu4e)
+
+  (setq mu4e-get-mail-command "mbsync -a")
+
+  (setq
+   mu4e-sent-folder "/proton/Sent"
+   mu4e-drafts-folder "/proton/Drafts"
+   mu4e-trash-folder "/proton/Trash"
+   mu4e-refile-folder "/proton/Archive")
+
+  (setq mu4e-update-interval (* 60 5))
 #+END_SRC
