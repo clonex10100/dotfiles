@@ -305,25 +305,31 @@ taken from emacs wiki
             (re-search-forward (ne/sexp-pair-regex "base32"))
             (replace-match hash t nil nil 1)))
         (widen))))
-
+  
   (defun ne/guix-bump-at-point (commit)
     (interactive "sCommit: ")
     (save-excursion
       (save-match-data
         (narrow-to-defun)
         (goto-char (point-min))
-
-        (re-search-forward (ne/sexp-pair-regex "version"))
-        (re-search-backward "\\.\\(.*\\)\"")
+  
+        ;; Update revision/version
+        (cond ((re-search-forward (ne/sexp-pair-regex "revision") nil t)
+               (re-search-backward "\"\\(.*\\)\""))
+              ((re-search-forward (ne/sexp-pair-regex "version") nil t)
+               (re-search-backward "\\.\\(.*\\)\""))
+              (t (error "Neither revision nor version found")))
         (let ((new-version (number-to-string (1+ (string-to-number (match-string 1))))))
           (replace-match new-version t nil nil 1))
-
+  
+        ;; Update Commit
+        (goto-char (point-min))
         (re-search-forward (ne/sexp-pair-regex "commit"))
         (replace-match commit t nil nil 1)
-
+  
         (ne/guix-hash-at-point)
         (widen))))
-
+  
   (defun ne/guix-bump-current-project ()
     (interactive)
     (save-current-buffer
