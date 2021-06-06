@@ -12,6 +12,7 @@
   - [[#make-tab-and-c-i-read-as-seperate-keys][Make tab and C-i read as seperate keys]]
   - [[#start-the-emacs-server][Start the emacs server]]
   - [[#core-packages][Core Packages]]
+  - [[#email][Email]]
 - [[#my-elisp][My Elisp]]
   - [[#config-file-macros][Config file macros]]
   - [[#interactive-functions][Interactive Functions]]
@@ -284,16 +285,17 @@ taken from emacs wiki
 #+BEGIN_SRC emacs-lisp
   (defun ne/sexp-pair-regex (name)
     (concat "(" name "[[:space:]\n\r]*\"\\(.*\\)\")"))
-
   (defun ne/git-hash (url commit)
     (let* ((odir (cadr (split-string (pwd))))
            (dir (file-name-sans-extension (car (last (split-string url "/"))))))
+      (cd "/tmp")
       (delete-directory dir t)
       (shell-command (concat "git clone " url))
       (cd dir)
       (shell-command (concat "git checkout -q " commit))
       (prog1
           (string-trim-right (shell-command-to-string "guix hash -rx ."))
+        (cd "..")
         (delete-directory dir t)
         (cd odir))))
 
@@ -319,7 +321,7 @@ taken from emacs wiki
       (save-match-data
         (narrow-to-defun)
         (goto-char (point-min))
-  
+
         ;; Update revision/version
         (cond ((re-search-forward (ne/sexp-pair-regex "revision") nil t)
                (re-search-backward "\"\\(.*\\)\""))
@@ -328,12 +330,12 @@ taken from emacs wiki
               (t (error "Neither revision nor version found")))
         (let ((new-version (number-to-string (1+ (string-to-number (match-string 1))))))
           (replace-match new-version t nil nil 1))
-  
+
         ;; Update Commit
         (goto-char (point-min))
         (re-search-forward (ne/sexp-pair-regex "commit"))
         (replace-match commit t nil nil 1)
-  
+
         (ne/guix-hash-at-point)
         (widen))))
   
@@ -596,7 +598,7 @@ Fix theme switching
 *** Transparancy
 Taken from emacs wiki
 #+BEGIN_SRC emacs-lisp
-  (defvar alpha-focused 97)
+  (defvar alpha-focused 95)
   (defvar alpha-unfocused 90)
   (set-frame-parameter (selected-frame) 'alpha (cons alpha-focused
                                                      alpha-unfocused))
@@ -934,6 +936,7 @@ Fold =aio-defun=
 #+BEGIN_SRC emacs-lisp
   (require 'fira-code-mode)
   (add-hook 'prog-mode-hook #'fira-code-mode)
+  (add-hook 'org-mode-hook #'fira-code-mode)
 
   (add-to-list 'fira-code-mode-disabled-ligatures "x")
   (add-to-list 'fira-code-mode-disabled-ligatures "[]")
@@ -1163,7 +1166,8 @@ Function to add a buffer to current perspective and switch to it
             (lambda ()
               (org-indent-mode)
               (diminish 'org-indent-mode)
-              (ne/visual-center-mode)))
+              (ne/visual-center-mode)
+              (auto-fill-mode)))
   (add-to-list 'org-agenda-files "~/org/")
 #+END_SRC
 
@@ -1199,6 +1203,7 @@ Load babel languages
      (scheme . t)
      (python . t)))
 #+END_SRC
+
 ** Roam
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -1209,6 +1214,9 @@ Load babel languages
   (require 'org-roam)
   (setq org-roam-directory "~/org-roam")
   (add-hook 'after-init-hook 'org-roam-mode)
+
+  ;; Is this neccesarry? Can I limit it to org-roam
+  ;; (push 'company-capf company-backends)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -1598,12 +1606,12 @@ TODO: defer loading
 ** Haskell
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
-  "emacs-haskell-mode"
-  "emacs-haskell-snippets"
-  "emacs-flycheck-haskell"
+  ;; "emacs-haskell-mode"
+  ;; "emacs-haskell-snippets"
+  ;; "emacs-flycheck-haskell"
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
-  (require 'haskell-mode)
+  ;;(require 'haskell-mode)
 #+END_SRC
 ** Ruby
 #+BEGIN_SRC emacs-lisp
