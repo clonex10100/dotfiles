@@ -11,9 +11,9 @@
    "wmctrl"
 
    ;; Audio utils
-   "alsa-utils"
-   "pavucontrol"
-   "pulsemixer"
+   ;; "alsa-utils"
+   ;; "pavucontrol"
+   ;; "pulsemixer"
    "mpd-mpc"
    "mpdscribble"
 
@@ -58,8 +58,20 @@
    "zathura"
    "zathura-pdf-mupdf"
    "sxiv-clone"
-   "thunar"
    "font-awesome"
    "font-symbola"
    ;;"syncthing-gtk"
+
+   ;; thunar
+   ;; "thunar"
+   ;; "ffmpegthumbnailer"
+   ;; "tumbler"
+   ;; "gstreamer"
+
+   ;;日本語は入力
+   ;; "fcitx5"
+   ;; "fcitx5-material-color-theme"
+   ;; "fcitx5-gtk"
+   ;; "fcitx5-qt"
+   ;; "fcitx5-configtool"
    ))

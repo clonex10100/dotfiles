@@ -101,4 +101,6 @@
    "emacs-dockerfile-mode"
    "emacs-docker-compose-mode"
    "emacs-imenu-list"
+   "mu"
+   "isync"
    ))
