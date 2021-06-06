@@ -110,6 +110,7 @@
   - [[#docker][Docker]]
   - [[#urbit-chat][Urbit-chat]]
   - [[#mozc-日本語は入力][mozc (日本語は入力)]]
+  - [[#imenu-list][Imenu List]]
 
 * Info
 ** Colemake Strategy
@@ -1743,6 +1744,10 @@ Also want "l" to be log instead of ediff ("o")
   (add-hook 'pdf-view-mode-hook #'pdf-view-midnight-minor-mode)
   ;;(add-hook 'pdf-view-mode-hook (lambda () (blink-cursor-mode -1)))
   ;;(add-hook 'pdf-view-mode-hook (lambda () (internal-show-cursor nil nil)))
+
+  (general-define-key :states 'normal :keymaps 'pdf-view-mode-map
+                      "c" #'imenu-list-smart-toggle
+                      "TAB" #'imenu-list-smart-toggle)
 #+END_SRC
 ** Pass
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
@@ -1984,4 +1989,14 @@ Don't shadow escape
 
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
   "j" #'toggle-input-method
+#+END_SRC
+** Imenu List
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-imenu-list"
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (require 'imenu-list)
+  (csetq imenu-list-position 'left)
 #+END_SRC
