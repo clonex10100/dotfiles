@@ -84,7 +84,7 @@ font-4 = Font Awesome:fontformat=truetype:pixelsize=12;1
 
 modules-left = dwm
 modules-center = mpdRestart mpdPrev mpdBackward mpdClear mpd mpdVol mpdForward mpdNext mpdToggle
-modules-right = pulseaudio cpu memory gpuTemp cpuTemp filesystem filesystemD filesystemD2 kobi date
+modules-right = recording pulseaudio cpu memory gpuTemp cpuTemp filesystem filesystemD filesystemD2 kobi date
 ;oxoscr bluetooth ether updates
 
 #tray-position = right
@@ -316,6 +316,7 @@ port = 6600
 #format-online= <label-song> <bar-progress> <label-time>
 format-online= <label-song> <label-time>
 
+label-song-maxlen = 70
 label-song = %title%
 format-online-underline = ${colors.green}
 
@@ -503,6 +504,13 @@ base-temperature = 20
 ; Threshold temperature to display warning label (in degrees celsius)
 ; Default: 80
 warn-temperature = 80
+
+[module/recording]
+type = custom/script
+exec = ~/.config/polybar/scripts/record.sh
+interval = 0.1
+format-foreground = ${colors.red}
+format-underline = ${colors.red}
 
 
 [settings]
