@@ -7,7 +7,7 @@ alias c="clear"
 alias cn="cd && clear && neofetch && tmux list-sessions"
 alias ls='ls --color=auto'
 alias f="ls -lah | grep -i "
-alias sizes="du -shc * | sort -h"
+alias sizes="du -shc ./* | sort -h"
 alias clip="xclip -selection clipboard"
 alias kkill="kill -KILL"
 
@@ -61,6 +61,8 @@ alias pac="sudo pacman -Syu"
 alias pacr="sudo pacman -Rs"
 alias paci="sudo pacman -Qi"
 
+alias pacexpl="pacman -Qet"
+
 # Docker
 alias dcu="sudo docker-compose up -d"
 alias dcd"sudo docker-compose down"
@@ -75,7 +77,7 @@ pacs (){
 #Guix
 alias gix="guix install -c 10"
 alias gixp="guix pull -c 10"
-alias gixr="guix install"
+alias gixr="guix remove"
 alias gixi="guix package -I"
 guixgem() {
     guix import gem -r $1 >> $HOME/guix-packages/ruby-local-gems.scm
@@ -105,6 +107,10 @@ viewlog() {
 }
 mani() {
     guix package -m "/home/clone/dotfiles/guix-manifests/$1.scm" -p "/home/clone/.guix-extra-profiles/$1/$1"
+}
+
+profi() {
+    guix package -p "/home/clone/.guix-extra-profiles/$1/$1" -i $2
 }
 
 #Search a project folder for keyword
@@ -201,20 +207,6 @@ mp(){
     mpv $1 &> /dev/null &
 }
 
-aur(){
-    cd ~/aurBuilds
-    git=$(xclip -selection c -o)
-    dir=$(basename $git .git)
-    echo $dir
-    if [[ -d "${dir}" ]]; then
-        rm -rf "${dir}"
-    fi
-    git clone $git
-    cd "${dir}"
-    nvim PKGBUILD
-    makepkg -si
-}
-
 mp3Add(){
     ls | grep $1 >> /data/phonemp3list
 }
@@ -247,7 +239,7 @@ mkscript() {
     if [[ ! -f "$script" ]]; then
         touch $script
         echo "#!/bin/sh" > $script
-        $EDITOR $script
+        exec "$EDITOR $script"
         chmod a+x $script
     fi
 }
@@ -270,4 +262,28 @@ togif() {
     -loop 0 \
     "${1%.*}.gif"
 }
-alias flank="sudo bin/qmk compile -kb planck/rev5 -km clonex10100:dfu"
+alias flank="sudo qmk compile -kb planck/rev5 -km clonex10100:dfu"
+
+
+vca() {
+    for f in ./*; do
+        vcs "$f" -U0 -i 1m -c 3 -H 200 -a 300/200 -o "${f%.*}.jpg"
+    done
+}
+
+alias nload="nload -u M -U M enp34s0"
+
+# Nintendo switch
+alias hekate='sudo ~/builds/fusee-launcher/fusee-launcher.py ~/switchHacking/payloads/hekate_ctcaer_5.5.5.bin'
+
+alias tonsp='4nxci -k ~/builds/4NXCI/keys.dat'
+
+alias dbi='sudo python3 ~/switchHacking/dbibackend/dbibackend/dbibackend.py /data/ggn/switch/extract'
+
+alias randomword='shuf -n5 ~/Documents/dict.txt'
+
+# Transcoding
+tov0="flac2mp3.pl --copyfiles --processes=6 --lameargs='-V 0'"
+to320="flac2mp3.pl --copyfiles --processes=6 --lameargs='-b 320'"
+
+alias syslog="sudo journalctl -b -x -f -p 4"
