@@ -198,6 +198,11 @@ Packages needed for this config
 #+BEGIN_SRC emacs-lisp
   (require 'diminish)
 #+END_SRC
+** Email
+#+BEGIN_SRC emacs-lisp
+  (setq user-mail-address "noah@nevans.me")
+#+END_SRC
+
 * My Elisp
 ** Config file macros
 *** Modeify
