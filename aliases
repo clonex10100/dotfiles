@@ -262,7 +262,9 @@ togif() {
     -loop 0 \
     "${1%.*}.gif"
 }
-alias flank="sudo qmk compile -kb planck/rev5 -km clonex10100:dfu"
+
+# Flash plank (now with udev rule)
+alias flank="qmk compile -kb planck/rev5 -km clonex10100:dfu"
 
 
 vca() {
