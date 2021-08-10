@@ -30,6 +30,7 @@
   - [[#global-keybinds][Global Keybinds]]
   - [[#frame-params][Frame Params]]
   - [[#dont-ask-about-symlinks][Don't ask about symlinks]]
+  - [[#column-number-in-modeline][Column number in modeline]]
   - [[#日本語フォント][日本語フォント]]
 - [[#ui][UI]]
   - [[#theme][Theme]]
@@ -65,6 +66,7 @@
   - [[#undo-tree][Undo Tree]]
   - [[#helpful][Helpful]]
   - [[#dashboard][Dashboard]]
+  - [[#hydra][Hydra]]
 - [[#org][Org]]
   - [[#setup][Setup]]
   - [[#roam][Roam]]
@@ -89,6 +91,7 @@
   - [[#cc][C/C++]]
   - [[#haskell][Haskell]]
   - [[#ruby][Ruby]]
+  - [[#config][Config]]
 - [[#programs][Programs]]
   - [[#man][Man]]
   - [[#info-1][Info]]
@@ -112,6 +115,8 @@
   - [[#mozc-日本語は入力][mozc (日本語は入力)]]
   - [[#imenu-list][Imenu List]]
   - [[#mail][Mail]]
+  - [[#pacfiles][Pacfiles]]
+  - [[#matrix][matrix]]
 
 * Info
 ** Colemake Strategy
@@ -462,6 +467,10 @@ Lock files confuse npm start
 ** Don't ask about symlinks
 #+BEGIN_SRC emacs-lisp
   (csetq vc-follow-symlinks t)
+#+END_SRC
+** Column number in modeline
+#+BEGIN_SRC emacs-lisp
+  (column-number-mode)
 #+END_SRC
 ** 日本語フォント
 *Guix Packages*
@@ -1064,10 +1073,11 @@ TODO: keybindings
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (require 'perspective)
-  (diminish 'persp-mode)
-  ;;(csetq persp-show-modestring t)
-  (persp-mode)
+   (require 'perspective)
+   (diminish 'persp-mode)
+   ;;(csetq persp-show-modestring t)
+  
+   (persp-mode)
 #+END_SRC
 
 Share some buffers across all perspectives
@@ -1077,10 +1087,36 @@ Share some buffers across all perspectives
             (lambda ()
               (dolist (buff persp-shared-buffs) 
                 (persp-add-buffer buff))))
-
+  
   (add-hook 'persp-created-hook
             (lambda () (switch-to-buffer "*dashboard*")))
 #+END_SRC
+
+Function to add a buffer to current perspective and switch to it
+#+begin_src emacs-lisp
+  (defun ne/persp-ivy-add-and-switch (arg)
+    (interactive "P")
+    (let* ((buffer
+           (apply #'ivy-read
+                  (append
+                   (list
+                    (format "Switch to buffer (%s): " (persp-current-name))
+                    (mapcar #'buffer-name (buffer-list))
+                    :preselect (buffer-name (persp-other-buffer (current-buffer)))
+                    :keymap ivy-switch-buffer-map
+                    :caller #'ivy-switch-buffer
+                    :matcher #'ivy--switch-buffer-matcher)
+                   nil)))
+          (buffer (get-buffer buffer)))
+      (unless (persp-is-current-buffer buffer)
+        (push buffer (persp-current-buffers)))
+      (switch-to-buffer buffer)))
+  
+  (general-define-key :states '(normal insert) :keymaps 'persp-mode-map
+                      "C-x x a" #'ne/persp-ivy-add-and-switch)
+  (general-define-key :states '(normal insert) :keymaps 'persp-mode-map
+                      "C-x x a" #'ne/persp-ivy-add-and-switch)
+#+end_src
 ** Undo Tree
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -1129,30 +1165,47 @@ So it must be manually activated
                                    (redisplay)
                                    (run-hooks 'dashboard-after-initialize-hook)))
 #+END_SRC
+** Hydra
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-hydra"
+#+END_SRC
 
-Function to add a buffer to current perspective and switch to it
-#+begin_src emacs-lisp
-  (defun ne/persp-ivy-add-and-switch (arg)
-    (interactive "P")
-    (let* ((buffer
-           (apply #'ivy-read
-                  (append
-                   (list
-                    (format "Switch to buffer (%s): " (persp-current-name))
-                    (mapcar #'buffer-name (buffer-list))
-                    :preselect (buffer-name (persp-other-buffer (current-buffer)))
-                    :keymap ivy-switch-buffer-map
-                    :caller #'ivy-switch-buffer
-                    :matcher #'ivy--switch-buffer-matcher)
-                   nil)))
-          (buffer (get-buffer buffer)))
-      (unless (persp-is-current-buffer buffer)
-        (push buffer (persp-current-buffers)))
-      (switch-to-buffer buffer)))
-
+:TODO:
+#+BEGIN_SRC emacs-lisp
+  
+#+END_SRC
+*** Projectile Integration
+#+BEGIN_SRC emacs-lisp
+  
+  (defun ne/persp-switch-to-project (&optional default-action)
+    "Switch project.
+  
+          Optional argument DEFAULT-ACTION is the key, function, name, or
+          index in the list `counsel-projectile-switch-project-action' (1
+          for the first action, etc) of the action to set as default."
+    (interactive)
+    (ivy-read (projectile-prepend-project-name "Switch to project: ")
+              (if counsel-projectile-remove-current-project
+                  (projectile-relevant-known-projects)
+                projectile-known-projects)
+              :preselect (and (projectile-project-p)
+                              (abbreviate-file-name (projectile-project-root)))
+              :action (lambda (project-path)
+                        (message "%s" project-path)
+                        (let* ((persp-name
+                                (car (last (split-string project-path "/" t))))
+                               (exists (gethash persp-name (perspectives-hash))))
+                          (persp-switch persp-name)
+                          (unless exists
+                            (counsel-projectile-switch-project-action project-path))))
+              :require-match t
+              :sort counsel-projectile-sort-projects
+              :caller 'counsel-projectile-switch-project))
   (general-define-key :states '(normal insert) :keymaps 'persp-mode-map
-                      "C-x x a" #'ne/persp-ivy-add-and-switch)
-#+end_src
+                      "C-x x p" #'ne/persp-switch-to-project)
+#+END_SRC
+
 * Org
 ** Setup
 *Guix Packages*
@@ -1235,17 +1288,17 @@ Load babel languages
 ** Subdirectory Namespacing
 Read relative paths in capture template.
 #+BEGIN_SRC emacs-lisp
-(setq org-roam-capture-templates
-  `(("d" "default" plain (function org-roam-capture--get-point)
-     "%?"
-     :file-name "%(file-name-directory \"${title}\")%<%Y%m%d%H%M%S>-%(file-name-nondirectory \"${title}\")"
-     :head "#+title: %(file-name-nondirectory \"${title}\")\n"
-     :unnarrowed t)))
+  ;; (setq org-roam-capture-templates
+  ;;   `(("d" "default" plain (function org-roam-capture--get-point)
+  ;;      "%?"
+  ;;      :file-name "%(file-name-directory \"${title}\")%<%Y%m%d%H%M%S>-%(file-name-nondirectory \"${title}\")"
+  ;;      :head "#+title: %(file-name-nondirectory \"${title}\")\n"
+  ;;      :unnarrowed t)))
 #+END_SRC
 
 Add subdirectories as tags.
 #+BEGIN_SRC emacs-lisp
-(setq org-roam-tag-sources '(prop all-directories))
+  ;; (setq org-roam-tag-sources '(prop all-directories))
 #+END_SRC
 
 
@@ -1485,6 +1538,7 @@ TODO: defer loading
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
   "emacs-geiser"
+  "emacs-geiser-guile"
   "mit-scheme"
   "emacs-flycheck-guile"
 #+END_SRC
@@ -1495,12 +1549,48 @@ TODO: defer loading
   (require 'flycheck-guile)
   (with-eval-after-load 'geiser-guile
     (add-to-list 'geiser-guile-load-path "~/.guix-profile/share/guile/site/3.0/")
-    (add-to-list 'geiser-guile-load-path "~/builds/guix"))
-
+    (add-to-list 'geiser-guile-load-path "~/.guix-profile/share/guile/site/2.2/")
+    (add-to-list 'geiser-guile-load-path "~/.guix-profile/share/guile/2.2/")
+    (add-to-list 'geiser-guile-load-path "~/.guix-extra-profiles/guile/guile/share/guile/site/3.0/")
+    (add-to-list 'geiser-guile-load-path "~/.guix-extra-profiles/guile/guile/share/guile/site/2.2/")
+    (add-to-list 'geiser-guile-load-path "~/.guix-extra-profiles/guile/guile/share/guile/2.2/")
+    (add-to-list 'geiser-guile-load-path "~/builds/guix")
+    (add-to-list 'geiser-guile-load-path "~/projects/guile/g-golf"))
+  
   (add-hook 'xscheme-start-hook #'smartparens-mode)
   (add-hook 'xscheme-start-hook #'rainbow-delimiters-mode)
-
+  (setq geiser-repl-use-other-window nil)
 #+END_SRC
+**** guile
+  (require 'geiser)
+  (defun eros-geiser-eval-last-sexp (eval-last-sexp-arg-internal)
+    (interactive "P")
+    (eros--eval-overlay
+     (substring (geiser-eval-last-sexp nil)
+                3)
+     (point)))
+  
+  (defun eros-geiser-eval-definition (&optional geiser-eval-definition-internal)
+    (interactive "P")
+    (let ((value (alist-get 'result
+                            (geiser-eval-definition geiser-eval-definition-internal)))
+          (point (save-excursion
+                   (end-of-defun)
+                   (point))))
+      (message "a%s" value)
+      (eros--make-result-overlay value) 
+           :where point
+           :duration eros-eval-result-duration)))
+  
+  (define-minor-mode eros-geiser-mode
+    "Display Emacs Lisp evaluation results overlays."
+    :global t
+    (if eros-geiser-mode
+        (progn
+          (global-set-key [remap geiser-eval-last-sexp] #'eros-geiser-eval-last-sexp)
+          (global-set-key [remap geiser-eval-definition] #'eros-geiser-eval-definition))
+      (global-set-key [remap eval-last-sexp] nil)
+      (global-set-key [remap eval-defun] nil)))
 *** Elisp
 #+BEGIN_SRC emacs-lisp
   (general-define-key :modes 'normal :keymaps 'emacs-lisp-mode-map
@@ -1615,7 +1705,7 @@ TODO: defer loading
 #+END_SRC
 ** C/C++
 #+BEGIN_SRC emacs-lisp
-  ;;(add-hook 'c++-mode-hook #'lsp)
+  (add-hook 'c-mode-hook #'lsp)
 #+END_SRC
 *** Keybinds
 #+BEGIN_SRC emacs-lisp
@@ -1637,6 +1727,15 @@ TODO: defer loading
 #+BEGIN_SRC emacs-lisp
   (add-hook 'ruby-mode-hook #'lsp)
 #+END_SRC
+** Config
+*** Systemd service
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-systemd-mode"
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (require 'systemd)
+#+END_SRC
 * Programs
 Packages that offer a self contained experience.
 ** Man
@@ -1651,8 +1750,18 @@ Packages that offer a self contained experience.
 
 Prevent info mode from overwriting movement
 #+BEGIN_SRC emacs-lisp
-  (general-define-key :keymaps 'Info-mode-map "e" nil "i" nil)
+    (general-define-key :keymaps 'Info-mode-map "e" nil "i" nil
+                        "/" #'isearch-forward ;; Evil search is crashing my emacs
+                        "?" #'isearch-backward ;; Evil search is crashing my emacs
+)
 #+END_SRC
+
+load path
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'Info-directory-list "/home/clone/.guix-profile/share/info")
+  (add-to-list 'Info-directory-list "/home/clone/.guix-extra-profiles/emacs/emacs/share/info")
+#+END_SRC
+
 ** Magit
 *Guix Packages*
 #+BEGIN_SRC lisp :noweb-ref packages
@@ -1795,15 +1904,17 @@ Also want "l" to be log instead of ediff ("o")
                              "orange" "dark blue" "blue"
                              "dark magenta" "magenta" "dark cyan"
                              "royal blue" "dark gray" "gray"))
-
-  ;;(weechat-connect "localhost" 9000 "2dLToM3HVaEpGaNT")
+  
+  (defun ne/weechat-connect ()
+    (interactive)
+    (weechat-connect "localhost" 9000 "2dLToM3HVaEpGaNT"))
   (setq weechat-color-list (list 'unspecified s_base03 s_base01 s_red s_red
                                  s_green s_green s_base1
                                  s_orange s_blue s_blue
                                  s_violet s_magenta s_base1
                                  s_blue s_base1 s_base0))
-
-
+  
+  
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :noweb-ref leader-key
@@ -2020,4 +2131,22 @@ Don't shadow escape
    mu4e-refile-folder "/proton/Archive")
 
   (setq mu4e-update-interval (* 60 5))
+#+END_SRC
+** Pacfiles
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-pacfiles-mode"
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (require 'pacfiles-mode)
+#+END_SRC
+** matrix
+*Guix Packages*
+#+BEGIN_SRC lisp :noweb-ref packages
+  "emacs-matrix-client"
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (require 'matrix-client)   
 #+END_SRC
